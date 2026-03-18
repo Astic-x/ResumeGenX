@@ -1,0 +1,34 @@
+<document> ::= <element_list> EOF
+
+<element_list> ::= <element> <element_list> 
+                 | ε
+
+<element> ::= <key_value_pair> 
+            | <section> 
+            | <NEWLINE>
+
+<section> ::= "Section" <ASSIGN_OP> <STRING_VALUE> <NEWLINE> <section_body>
+
+<section_body> ::= <section_item> <section_body> 
+                 | ε
+
+<section_item> ::= <key_value_pair> 
+                 | <subsection> 
+                 | <NEWLINE>
+
+<subsection> ::= "SubSection" <ASSIGN_OP> <STRING_VALUE> <NEWLINE> <subsection_body>
+
+<subsection_body> ::= <subsection_item> <subsection_body> 
+                    | ε
+
+<subsection_item> ::= <key_value_pair> 
+                    | <NEWLINE>
+
+<key_value_pair> ::= <IDENTIFIER> <ASSIGN_OP> <value_expression>
+
+<value_expression> ::= <STRING_VALUE> <NEWLINE> 
+                     | <NEWLINE> <bullet_list>
+                     | <NEWLINE> 
+
+<bullet_list> ::= <BULLET_ITEM> <NEWLINE> <bullet_list>
+                | <BULLET_ITEM> <NEWLINE>
