@@ -1,0 +1,54 @@
+// 1. Forgiving Assignments: Notice how = and : are mixed freely
+Name = Ankush Malik
+Email : ankush.malik@example.com
+Location = Dehradun, Uttarakhand
+GitHub : github.com/ankushmalik
+
+// 2. Structural Hierarchy: Sections containing SubSections
+Section: Education
+    SubSection = Graphic Era (Deemed to be) University
+        Degree : B.Tech Computer Science and Engineering
+        ExpectedGraduation = 2027
+        Coursework = Compiler Design, Database Management Systems, Computer Networks, Machine Learning
+    
+    SubSection = Army Public School, Birpur
+        Degree = Higher Secondary Education
+        Graduation : 2022
+
+Section: Experience
+    SubSection: Microsoft
+        Role = Software Engineer Intern
+        StartDate : May 18, 2026
+        // 3. Multi-line String: The indentation on the second line tells the 
+        // Lexer to stitch this together into one continuous sentence.
+        Description = Incoming intern focused on core software engineering, 
+            cloud computing, and enterprise-level system architecture.
+
+Section: Projects
+    SubSection: CourtCommand
+        Role : Backend Developer
+        TechStack = Node.js, Express.js, MySQL, EJS
+        // 4. Natural Typing: The Lexer ignores the commas in the text below
+        // and safely reads the multi-line indented paragraph.
+        Description = Collaborated with Vishal, Sidharth, and Akshat to build an AI-powered basketball game analysis system.
+            The backend handles complex real-time data flow, user authentication, and video processing metrics seamlessly.
+        // 5. Bullet Points: The hyphen triggers the LIST token
+        Highlights:
+            - Designed robust MySQL schemas for game statistics.
+            - Built secure RESTful APIs using Node and Express.
+
+    SubSection = ArmouryNet
+        Role = Systems Engineer
+        Timeline : Sept 2025 - Nov 2025
+        // 6. Extreme Punctuation: The compiler will safely absorb the semicolon
+        // and the internal colon without thinking they are new keys.
+        Description: Engineered a comprehensive battalion logistics system; utilized advanced concurrency models: improved data retrieval significantly.
+        Highlights = 
+            - Optimized database queries to handle heavy load.
+            - Streamlined military equipment tracking and duty management.
+
+    SubSection: BaseOps
+        Role : Lead Developer
+        Timeline = Feb 2025 - May 2025
+        Highlights:
+            - Developed a highly efficient military duty management system.
