@@ -1,5 +1,5 @@
 package compiler.lexer;
-
+import compiler.parser.Parser;
 import java.util.ArrayList;
 import java.util.List;
 import java.nio.file.Files;
@@ -233,6 +233,8 @@ public class Lexer {
 
             Lexer lexer = new Lexer(fileContent);
             List<Token> tokens = lexer.tokenize();
+             Parser parser = new Parser(tokens);
+             parser.parseResume();
 
             for (Token t : tokens) {
                 System.out.println(t.toString());
@@ -241,6 +243,7 @@ public class Lexer {
             System.out.println("--- Test Complete ---");
 
         } catch (IOException e) {
+            e.printStackTrace();
             System.err.println("Error reading the file: " + e.getMessage());
             System.err.println("Make sure 'Sample.rdl' is sitting directly inside your ResumeGenX root folder!");
         }
