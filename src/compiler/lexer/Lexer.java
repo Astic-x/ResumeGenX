@@ -1,4 +1,5 @@
 package compiler.lexer;
+
 import compiler.parser.Parser;
 import java.util.ArrayList;
 import java.util.List;
@@ -219,33 +220,29 @@ public class Lexer {
         return c;
     }
 
-    // =========================================================================
-    // Phase 2 Verification Test
-    // =========================================================================
-    public static void main(String[] args) {
-        System.out.println("--- Booting Lexer File Test ---");
-
-        try {
-            // Read the entire file from the project root
-            // (If you fix the typo and rename it to Sample.rdl, just update the string
-            // below!)
-            String fileContent = Files.readString(Path.of("Sample.rdl"));
-
-            Lexer lexer = new Lexer(fileContent);
-            List<Token> tokens = lexer.tokenize();
-             Parser parser = new Parser(tokens);
-             parser.parseResume();
-
-            for (Token t : tokens) {
-                System.out.println(t.toString());
-            }
-
-            System.out.println("--- Test Complete ---");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            System.err.println("Error reading the file: " + e.getMessage());
-            System.err.println("Make sure 'Sample.rdl' is sitting directly inside your ResumeGenX root folder!");
-        }
-    }
+//    // =========================================================================
+//    // Independent Lexer Verification Test
+//    // =========================================================================
+//    public static void main(String[] args) {
+//        System.out.println("--- Booting Independent Lexer Test ---");
+//
+//        try {
+//            String fileContent = Files.readString(Path.of("Sample.rdl"));
+//            System.out.println("--- READING FILE SUCCESSFUL ---");
+//
+//            Lexer lexer = new Lexer(fileContent);
+//            List<Token> tokens = lexer.tokenize();
+//
+//            System.out.println("--- TOKENS GENERATED ---");
+//            for (Token t : tokens) {
+//                System.out.println(t.getType() + " : " + t.getValue().replace("\n", "\\n"));
+//            }
+//
+//            System.out.println("--- Lexer Test Complete ---");
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            System.err.println("Error reading the file: " + e.getMessage());
+//        }
+//    }
 }
