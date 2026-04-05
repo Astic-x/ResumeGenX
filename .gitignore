@@ -45,3 +45,8 @@ bin/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+
+
+out/
+*.class

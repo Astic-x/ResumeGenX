@@ -1,0 +1,35 @@
+Name = Priya Sharma
+Email : priya.sharma@email.com
+Location = Mumbai, Maharashtra
+GitHub : github.com/priyasharma
+
+Section: Education
+    SubSection = Mumbai University
+        Degree : B.Sc Computer Science
+        Graduation : 2025
+        Coursework = Data Structures, Operating Systems, Artificial Intelligence
+
+Section: Experience
+    SubSection: Infosys
+        Role = System Engineer Intern
+        StartDate : June 2025
+        Description = Contributed to backend services and optimized API performance.
+            Worked on improving response time and system reliability.
+
+Section: Projects
+    SubSection: ShopEase
+        Role : Full Stack Developer
+        TechStack = React, Node.js, MongoDB
+        Description = Developed a scalable e-commerce platform with secure authentication.
+            Integrated payment gateway and order tracking system.
+        Highlights:
+            - Implemented JWT-based authentication.
+            - Designed REST APIs for product and order management.
+
+    SubSection = ChatApp
+        Role = Backend Developer
+        Timeline : Jan 2025 - March 2025
+        Description: Built a real-time chat application using WebSockets.
+        Highlights:
+            - Enabled live messaging with low latency.
+            - Implemented user presence and notifications.
