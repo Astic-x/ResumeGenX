@@ -8,40 +8,38 @@ import java.nio.file.Path;
 import java.io.IOException;
 
 public class Lexer {
-
     private final String input;
     private int position = 0;
     private int line = 1;
     private int column = 1;
 
     public Lexer(String input) {
-        // Sanitize Windows line endings (\r\n) to standard Unix newlines (\n)
+        // Normalize line endings to standard Unix format
         this.input = input.replace("\r\n", "\n").replace("\r", "\n");
     }
 
-    // --- Core Lexical Loop ---
+    // Main lexical loop
     public List<Token> tokenize() {
         List<Token> tokens = new ArrayList<>();
-
         while (position < input.length()) {
             char currentChar = peek();
 
-            // 1. Skip standard whitespace (but NOT newlines)
+            // Skip spaces
             if (currentChar == ' ' || currentChar == '\t' || currentChar == '\r') {
                 advance();
                 continue;
             }
 
-            // 2. Handle Newlines
+            // Handle newlines
             if (currentChar == '\n') {
                 tokens.add(new Token(Token.TokenType.NEWLINE, "\\n", line, column));
                 advance();
                 line++;
-                column = 1; // Reset column on new line
+                column = 1;
                 continue;
             }
 
-            // 3. Skip Comments (// to end of line)
+            // Skip inline comments
             if (currentChar == '/' && peekAhead(1) == '/') {
                 while (position < input.length() && peek() != '\n') {
                     advance();
@@ -49,18 +47,16 @@ public class Lexer {
                 continue;
             }
 
-            // 4. Handle Bullet Points (Hyphen at start of text)
+            // Handle bullet points
             if (currentChar == '-') {
                 tokens.add(readBulletItem());
                 continue;
             }
 
-            // 5. Handle Assignments (= or :) and switch to Value Reading Mode
+            // Handle assignments and switch to value reading
             if (currentChar == '=' || currentChar == ':') {
                 tokens.add(new Token(Token.TokenType.ASSIGN_OP, String.valueOf(currentChar), line, column));
                 advance();
-
-                // Immediately switch state to absorb the string value
                 Token valueToken = readValue();
                 if (valueToken != null) {
                     tokens.add(valueToken);
@@ -68,29 +64,27 @@ public class Lexer {
                 continue;
             }
 
-            // 6. Handle Keywords and Identifiers
+            // Handle keywords and identifiers
             if (Character.isLetter(currentChar)) {
                 tokens.add(readIdentifierOrKeyword());
                 continue;
             }
 
-            // If we hit an unrecognized character, skip it
+            // Skip unrecognized characters
             advance();
         }
-
-        // Always end the stream with an EOF token
+        // End stream with EOF token
         tokens.add(new Token(Token.TokenType.EOF, "", line, column));
         return tokens;
     }
 
-    // --- State: Value Reading Mode ---
+    // Value reading mode
     private Token readValue() {
-        // Skip spaces immediately after the = or :
+        // Skip spaces after assignment
         while (peek() == ' ' || peek() == '\t')
             advance();
 
-        // If the user just pressed Enter after the colon (e.g., for a bullet list),
-        // return nothing
+        // Return nothing if Enter is pressed after colon
         if (peek() == '\n' || position >= input.length()) {
             return null;
         }
@@ -102,12 +96,12 @@ public class Lexer {
         while (position < input.length()) {
             char c = peek();
 
-            // THE SMART LOOKAHEAD RULE
+            // Smart lookahead rule
             if (c == '\n') {
                 int lookPos = position;
-                lookPos++; // Skip the \n itself
+                lookPos++; // Skip newline
 
-                // Count the indentation on the next line
+                // Count next line indentation
                 while (lookPos < input.length() && (input.charAt(lookPos) == ' ' || input.charAt(lookPos) == '\t')) {
                     lookPos++;
                 }
@@ -115,48 +109,47 @@ public class Lexer {
                 if (lookPos < input.length()) {
                     char nextChar = input.charAt(lookPos);
 
-                    // 1. Is it a bullet point?
+                    // Check for bullet point
                     if (nextChar == '-') {
-                        break; // Stop reading the string
+                        break;
                     }
 
-                    // 1.5 Is it a comment?
+                    // Check for comment
                     else if (nextChar == '/' && lookPos + 1 < input.length() && input.charAt(lookPos + 1) == '/') {
-                        break; // Stop reading the string, let the main loop handle the comment
+                        break;
                     }
 
-                    // 2. Is it a new Key-Value pair? (e.g., SubSection = Microsoft)
+                    // Check for new key-value pair
                     boolean isNewKey = false;
                     int tempPos = lookPos;
 
-                    // Read the first word on the new line
+                    // Read first word on new line
                     while (tempPos < input.length() && Character.isLetterOrDigit(input.charAt(tempPos))) {
                         tempPos++;
                     }
-                    // Skip spaces after that word
+                    // Skip spaces after word
                     while (tempPos < input.length()
                             && (input.charAt(tempPos) == ' ' || input.charAt(tempPos) == '\t')) {
                         tempPos++;
                     }
-                    // Is the very next thing an assignment operator?
+                    // Check if next character is an assignment operator
                     if (tempPos < input.length() && (input.charAt(tempPos) == '=' || input.charAt(tempPos) == ':')) {
                         isNewKey = true;
                     }
 
                     if (isNewKey) {
-                        break; // It's a new key! Stop reading the string value.
+                        break;
                     } else if (lookPos > position + 1) {
-                        // It has indentation, it's not a bullet, and it's NOT a new key.
-                        // It MUST be a multi-line string continuation!
+                        // Multi-line string continuation
                         sb.append(" ");
-                        position = lookPos; // Fast-forward lexer position
+                        position = lookPos;
                         line++;
                         column = 1 + (lookPos - (position + 1));
                         continue;
                     }
                 }
 
-                // If it has no indentation, the string is done.
+                // String is done if no indentation
                 break;
             }
 
@@ -167,7 +160,7 @@ public class Lexer {
         return new Token(Token.TokenType.STRING_VALUE, sb.toString().trim(), startLine, startCol);
     }
 
-    // --- Helpers for specific token types ---
+    // Helpers for specific tokens
     private Token readIdentifierOrKeyword() {
         int startCol = column;
         StringBuilder sb = new StringBuilder();
@@ -187,10 +180,10 @@ public class Lexer {
 
     private Token readBulletItem() {
         int startCol = column;
-        advance(); // Consume the '-'
+        advance(); // Consume hyphen
 
         while (peek() == ' ' || peek() == '\t')
-            advance(); // skip spaces after hyphen
+            advance(); // Skip spaces
 
         StringBuilder sb = new StringBuilder();
         while (position < input.length() && peek() != '\n') {
@@ -200,7 +193,7 @@ public class Lexer {
         return new Token(Token.TokenType.BULLET_ITEM, sb.toString().trim(), line, startCol);
     }
 
-    // --- Basic Pointer Movement ---
+    // Pointer movement
     private char peek() {
         if (position >= input.length())
             return '\0';
@@ -220,26 +213,19 @@ public class Lexer {
         return c;
     }
 
-//    // =========================================================================
-//    // Independent Lexer Verification Test
-//    // =========================================================================
+//    // Independent lexer test
 //    public static void main(String[] args) {
-//        System.out.println("--- Booting Independent Lexer Test ---");
-//
+//        System.out.println("Starting lexer test");
 //        try {
 //            String fileContent = Files.readString(Path.of("Sample.rdl"));
-//            System.out.println("--- READING FILE SUCCESSFUL ---");
-//
+//            System.out.println("File read successfully");
 //            Lexer lexer = new Lexer(fileContent);
 //            List<Token> tokens = lexer.tokenize();
-//
-//            System.out.println("--- TOKENS GENERATED ---");
+//            System.out.println("Tokens generated:");
 //            for (Token t : tokens) {
 //                System.out.println(t.getType() + " : " + t.getValue().replace("\n", "\\n"));
 //            }
-//
-//            System.out.println("--- Lexer Test Complete ---");
-//
+//            System.out.println("Lexer test complete");
 //        } catch (IOException e) {
 //            e.printStackTrace();
 //            System.err.println("Error reading the file: " + e.getMessage());

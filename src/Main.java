@@ -16,23 +16,23 @@ public class Main {
 
         System.out.println("==========================================");
         System.out.println("  ResumeGenX - Combined Compiler Test  ");
-        System.out.println("==========================================\n");
+        System.out.println("==========================================");
 
         try {
             // ================= 1. READ INPUT =================
-           String fileName = args.length > 0 ? args[0] : "Sample.rdl";
+            String fileName = args.length > 0 ? args[0] : "Sample1.rdl";
 
-System.out.println("[1/5] Reading input file '" + fileName + "'...");
-String fileContent = Files.readString(Path.of(fileName));
-            System.out.println("      File read successfully. Length: " 
-                                + fileContent.length() + " characters.\n");
+            System.out.println("[1/5] Reading input file '" + fileName + "'...");
+            String fileContent = Files.readString(Path.of(fileName));
+            System.out.println("      File read successfully. Length: "
+                    + fileContent.length() + " characters.\n");
 
             // ================= 2. LEXER =================
             System.out.println("[2/5] Running Lexer...");
             Lexer lexer = new Lexer(fileContent);
             List<Token> tokens = lexer.tokenize();
-            System.out.println("      Lexer finished successfully. Generated " 
-                                + tokens.size() + " tokens.\n");
+            System.out.println("      Lexer finished successfully. Generated "
+                    + tokens.size() + " tokens.\n");
 
             // ================= 3. PARSER =================
             System.out.println("[3/5] Running Parser...");
@@ -48,7 +48,7 @@ String fileContent = Files.readString(Path.of(fileName));
             SemanticAnalyzer analyzer = new SemanticAnalyzer();
 
             analyzer.analyze(myResume);
-System.out.println("      Semantic analysis completed.\n");
+            System.out.println("      Semantic analysis completed.\n");
 
             // ================= 5. PRINT AST =================
             System.out.println("==========================================");
@@ -62,9 +62,11 @@ System.out.println("      Semantic analysis completed.\n");
 
             System.out.println("\nSections (" + myResume.sections.size() + " total):");
             for (Section s : myResume.sections) {
-                System.out.println(" -> Section: [" + s.title + "] with " 
-                                    + s.subSections.size() + " subsections");
+                System.out.println(" -> Section: [" + s.title + "] with "
+                        + s.subSections.size() + " subsections");
             }
+
+            System.out.println("\n  Test Completed Without Errors  ");
 
             System.out.println("\n==========================================");
             System.out.println("  Execution Completed ");
@@ -77,21 +79,31 @@ System.out.println("      Semantic analysis completed.\n");
 
             // Print preview
             System.out.println("\n----- GENERATED LATEX -----\n");
-            //System.out.println(latexCode);
+            // System.out.println(latexCode);
 
             // ================= SAVE TO FILE =================
-            Path outputPath = Path.of("output.tex");
+            // Define the workspace directory
+            Path workspaceDir = Path.of("workspace");
+
+            // Safely create the directory if it doesn't exist yet
+            if (!Files.exists(workspaceDir)) {
+                Files.createDirectories(workspaceDir);
+                System.out.println("      Created new 'workspace' directory.");
+            }
+
+            // Resolve the output path inside the workspace folder
+            Path outputPath = workspaceDir.resolve("output.tex");
             Files.writeString(outputPath, latexCode);
 
-            System.out.println("\nLaTeX file generated successfully: output.tex");
+            System.out.println("\nLaTeX file generated successfully: " + outputPath.toString());
 
         } catch (IOException e) {
             System.err.println("\n[ERROR] File not found or cannot be read!");
             System.err.println("Make sure 'Sample.rdl' exists in project root.");
             e.printStackTrace();
         } catch (Exception e) {
-    System.err.println("\n[COMPILATION ERROR]");
-    System.err.println(e.getMessage());
-}
+            System.err.println("\n[COMPILATION ERROR]");
+            System.err.println(e.getMessage());
+        }
     }
 }

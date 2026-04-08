@@ -1,0 +1,50 @@
+Name = Jordan Overachiever
+Email = jordan.o@example.com
+Location = San Francisco, CA
+GitHub = github.com/jordan_o
+
+Section = "Education"
+SubSection = "Tech Institute of California"
+Degree = B.S. Software Engineering
+ExpectedGraduation = 2025
+Coursework = Distributed Systems, Cloud Computing, Advanced Algorithms
+GPA = 3.9/4.0
+
+Section = "Experience"
+SubSection = "MegaCorp"
+Role = Backend Engineering Intern
+Timeline = 2024 - Present
+Highlights = 
+- Engineered a scalable microservice architecture using Spring Boot and Docker.
+- Reduced database query latency by 45% through aggressive Redis caching.
+- Authored 20+ comprehensive API endpoints for the core mobile application.
+
+SubSection = "StartupX"
+Role = Full Stack Developer
+Timeline = 2023 - 2024
+Highlights =
+- Led the migration of a legacy PHP application to a modern React/Node.js stack.
+- Implemented secure OAuth2 authentication flow for 10,000+ active users.
+- Automated deployment pipelines using GitHub Actions and AWS CodeDeploy.
+
+Section = "Projects"
+SubSection = "ResumeGenX Compiler"
+Role = Lead Architect
+Timeline = 2025
+Highlights =
+- Developed a custom Domain-Specific Language (DSL) for resume generation.
+- Built a predictive LL(1) recursive descent parser from scratch in Java.
+- Implemented a dynamic typesetting engine that algorithmically scales LaTeX formatting.
+
+SubSection = "CryptoTracker"
+Role = Solo Developer
+Timeline = 2024
+Highlights =
+- Built a real-time cryptocurrency dashboard using WebSockets and D3.js.
+- Processed over 1,000 live price updates per second without UI freezing.
+
+Section = "Skills"
+SubSection = "Technical Arsenal"
+Languages = Java, Python, TypeScript, C++, SQL, Go
+Frameworks = Spring Boot, React, Node.js, Express, TailwindCSS
+Tools = Git, Docker, Kubernetes, AWS, Linux, LaTeX

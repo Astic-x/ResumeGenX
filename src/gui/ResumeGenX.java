@@ -24,7 +24,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import java.io.File;
 
-public class MainGUI extends Application {
+public class ResumeGenX extends Application {
 
     // ══════════════════════════════════════════════════════════════════
     // STAGE REFERENCE — shared between pages
@@ -1033,7 +1033,7 @@ public class MainGUI extends Application {
                     btnTex.setStyle(Theme.btnSecondary().replace(Theme.COBALT, Theme.COBALT_H));
             });
             btnTex.setOnMouseExited(e -> btnTex.setStyle(Theme.btnSecondary()));
-            btnTex.setOnAction(e -> TemplateDialog.show(selectedName, "LaTeX", fileName));
+            btnTex.setOnAction(e -> showDialog("LaTeX"));
 
             btnPdf = new Button("↓  Generate PDF");
             btnPdf.setFont(Font.font("System", FontWeight.BOLD, 13));
@@ -1045,7 +1045,7 @@ public class MainGUI extends Application {
                     btnPdf.setStyle(Theme.btnPrimaryHover());
             });
             btnPdf.setOnMouseExited(e -> btnPdf.setStyle(Theme.btnPrimary()));
-            btnPdf.setOnAction(e -> TemplateDialog.show(selectedName, "PDF", fileName));
+            btnPdf.setOnAction(e -> showDialog("PDF"));
 
             HBox bar = new HBox(16, info, btnTex, btnPdf);
             bar.setPadding(new Insets(18, 52, 18, 52));
@@ -1056,6 +1056,14 @@ public class MainGUI extends Application {
                     + "-fx-border-width:0 0 0 3;"
                     + "-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.5),16,0,0,-4);");
             return bar;
+        }
+
+        private void showDialog(String type) {
+            Alert a = new Alert(Alert.AlertType.INFORMATION);
+            a.setTitle("ResumeGenX — " + type + " Ready");
+            a.setHeaderText("\"" + selectedName + "\" compiled successfully");
+            a.setContentText("Resume generated as " + type + ".\nSource: " + fileName + "\n\nClick OK to download.");
+            a.showAndWait();
         }
     }
 }

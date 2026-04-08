@@ -1,153 +1,182 @@
 package compiler.generator;
 
 import compiler.ast.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.Locale;
 
 public class LatexGenerator {
+
+    private static String escapeLatex(String text) {
+        if (text == null)
+            return "";
+        text = text.trim();
+        if (text.startsWith("\"") && text.endsWith("\"") && text.length() >= 2) {
+            text = text.substring(1, text.length() - 1);
+        }
+        return text.replace("%", "\\%")
+                .replace("_", "\\_")
+                .replace("&", "\\&")
+                .replace("$", "\\$")
+                .replace("#", "\\#");
+    }
 
     public static String generate(Resume resume) {
         StringBuilder latex = new StringBuilder();
 
-        // ================= AUTO SIZE LOGIC =================
+        // ================= PIVOT-BASED ELASTIC ENGINE =================
         int totalSubSections = 0;
+        int totalBullets = 0;
         for (Section s : resume.sections) {
             totalSubSections += s.subSections.size();
+            for (SubSection sub : s.subSections) {
+                totalBullets += sub.bullets.size();
+            }
         }
 
-        // ================= DOCUMENT SETUP =================
+        int contentScore = (resume.sections.size() * 10) + (totalSubSections * 8) + (totalBullets * 2);
+
+        double pivotScore = 120.0;
+        double minS = 20.0;
+
+        double w = Math.min(1.0, (contentScore - minS) / (pivotScore - minS));
+
+        // 3. THE SCALING MATH
+        double fontSizeVal = 17.0 - (5.0 * w);
+        double lineSpacingMultiplier = 1.7 - (0.5 * w);
+        int lineSpacing = (int) Math.floor(fontSizeVal * lineSpacingMultiplier);
+
+        double sectionFontSize = fontSizeVal + 3.0;
+        int sectionLineSpacing = (int) Math.floor(sectionFontSize * 1.2);
+
+        double subtitleSize = fontSizeVal + 1.5;
+
+        double topMarginVal = 1.5 + (-1.7 * w);
+
+        int headerGap = (int) Math.floor(25.0 + (0.0 - 25.0) * w);
+        int beforeSectionGap = (int) Math.floor(45.0 + (8.0 - 45.0) * w);
+        // 🔥 THE FIX: Slightly increased the gap below the section line
+        int afterSectionGap = (int) Math.floor(14.0 + (4.0 - 14.0) * w);
+        int itemSep = (int) Math.floor(22.0 + (1.0 - 22.0) * w);
+        int topSep = (int) Math.floor(18.0 + (2.0 - 18.0) * w);
+
+        String topMargin = String.format(Locale.US, "%.2fin", topMarginVal);
+        String headerSpacing = String.format(Locale.US, "\\vspace{%dpt}", headerGap);
+        String itemSpacing = String.format(Locale.US, "itemsep=%dpt,parsep=%dpt,topsep=%dpt", itemSep,
+                (int) (itemSep / 2), topSep);
+
+        // ================= PREAMBLE =================
         latex.append("%-------------------------\n");
-        latex.append("% Resume in Latex\n");
+        latex.append("% ResumeGenX - Pivot-Based Elastic Scaling\n");
+        latex.append("% Score: ").append(contentScore).append(" | Weight: ").append(String.format(Locale.US, "%.2f", w))
+                .append("\n");
+        latex.append("% Dynamic Font: ").append(String.format(Locale.US, "%.1f", fontSizeVal)).append("pt\n");
         latex.append("%------------------------\n\n");
 
-        // Keep normal font sizes unless the resume is extremely empty
-        String fontSize = (totalSubSections <= 3) ? "12pt" : "11pt";
+        latex.append("\\documentclass[letterpaper,10pt]{article}\n\n");
 
-        latex.append("\\documentclass[letterpaper," + fontSize + "]{article}\n\n");
-
-        latex.append("\\usepackage{latexsym}\n");
         latex.append("\\usepackage[empty]{fullpage}\n");
         latex.append("\\usepackage{titlesec}\n");
         latex.append("\\usepackage{marvosym}\n");
         latex.append("\\usepackage[usenames,dvipsnames]{color}\n");
-        latex.append("\\usepackage{verbatim}\n");
         latex.append("\\usepackage{enumitem}\n");
         latex.append("\\usepackage[pdftex,hidelinks]{hyperref}\n");
-        latex.append("\\usepackage{fancyhdr}\n\n");
+        latex.append("\\usepackage{fancyhdr}\n");
+        latex.append("\\usepackage{anyfontsize}\n\n");
 
-        latex.append("\\pagestyle{fancy}\n\\fancyhf{}\n");
-        latex.append("\\renewcommand{\\headrulewidth}{0pt}\n");
-        latex.append("\\renewcommand{\\footrulewidth}{0pt}\n\n");
+        latex.append("\\addtolength{\\topmargin}{").append(topMargin).append("}\n");
+        latex.append("\\addtolength{\\textheight}{1.8in}\n");
+        latex.append("\\addtolength{\\textwidth}{1.0in}\n");
+        latex.append("\\addtolength{\\oddsidemargin}{-0.5in}\n");
+        latex.append("\\addtolength{\\evensidemargin}{-0.5in}\n\n");
 
-        latex.append("\\addtolength{\\oddsidemargin}{-0.375in}\n");
-        latex.append("\\addtolength{\\evensidemargin}{-0.375in}\n");
-        latex.append("\\addtolength{\\textwidth}{1in}\n");
-        latex.append("\\addtolength{\\topmargin}{-.5in}\n");
-        latex.append("\\addtolength{\\textheight}{1.0in}\n\n");
-
-        latex.append("\\urlstyle{same}\n\\raggedbottom\n\\raggedright\n");
-        latex.append("\\setlength{\\tabcolsep}{0in}\n\n");
+        latex.append("\\urlstyle{same}\n\\raggedbottom\n\\raggedright\n\n");
 
         latex.append("\\titleformat{\\section}{\n");
-        latex.append("  \\vspace{-4pt}\\scshape\\raggedright\\large\n");
-        latex.append("}{}{0em}{}[\\color{black}\\titlerule \\vspace{-5pt}]\n\n");
+        latex.append("  \\scshape\\raggedright\\color{black}");
+        latex.append("\\fontsize{").append(String.format(Locale.US, "%.1f", sectionFontSize))
+                .append("}{").append(sectionLineSpacing).append("}\\selectfont\n");
+        latex.append("}{}{0em}{}[\\titlerule]\n\n");
 
-        // ================= CUSTOM COMMANDS (RESTORED FORMATTING) =================
-        latex.append("% Custom commands\n\n");
+        latex.append("\\titlespacing*{\\section}{0pt}{")
+                .append(beforeSectionGap).append("pt}{")
+                .append(afterSectionGap).append("pt}\n\n");
 
-        latex.append("\\newcommand{\\resumeItem}[2]{\n");
-        latex.append("  \\item\\small{\n");
-        latex.append("    \\textbf{#1}{: #2 \\vspace{-2pt}}\n"); // Restored to your original format
-        latex.append("  }\n");
-        latex.append("}\n\n");
-
-        latex.append("\\newcommand{\\resumeSubheading}[4]{\n");
-        latex.append("  \\vspace{-1pt}\\item\n");
-        latex.append("    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}\n");
-        latex.append("      \\textbf{#1} & \\small #2 \\\\\n");
-        latex.append("      \\textit{\\small #3} & \\textit{\\small #4} \\\\\n");
-        latex.append("    \\end{tabular*}\\vspace{-5pt}\n");
-        latex.append("}\n\n");
-
-        latex.append("\\newcommand{\\resumeSubItem}[2]{\\resumeItem{#1}{#2}\\vspace{-4pt}}\n\n");
-
-        // Set the second level bullet to a small circle (matches screenshot)
-        latex.append("\\renewcommand{\\labelitemii}{$\\circ$}\n\n");
-
-        latex.append("\\newcommand{\\resumeSubHeadingListStart}{%\n");
-        latex.append("  \\begin{itemize}[leftmargin=*,label={}]}\n");
-        latex.append("\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}\n\n");
-
-        // Bullet point formatting - itemsep=1pt keeps it tight like the screenshot
-        latex.append("\\newcommand{\\resumeItemListStart}{%\n");
-        latex.append("  \\begin{itemize}[leftmargin=1.5em,itemsep=1pt,parsep=0pt,topsep=3pt]}\n");
-        latex.append("\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-4pt}}\n\n");
-
-        latex.append("\\newcommand{\\resumeItemBullet}[1]{\\item\\small{#1}}\n\n");
+        latex.append("\\newcommand{\\resumeSubHeadingListStart}{\\begin{itemize}[leftmargin=*,label={}]}\n");
+        latex.append("\\newcommand{\\resumeSubHeadingListEnd}{\\end{itemize}}\n");
+        latex.append("\\newcommand{\\resumeItemListStart}{\\begin{itemize}[leftmargin=1.2em,").append(itemSpacing)
+                .append("]}\n");
+        latex.append("\\newcommand{\\resumeItemListEnd}{\\end{itemize}\\vspace{-5pt}}\n\n");
 
         latex.append("\\begin{document}\n\n");
 
+        latex.append("\\fontsize{").append(String.format(Locale.US, "%.1f", fontSizeVal))
+                .append("}{").append(lineSpacing).append("}\\selectfont\n\n");
+
         // ================= HEADER =================
-        String name           = resume.headerInfo.getOrDefault("Name",     "");
-        String email          = resume.headerInfo.getOrDefault("Email",    "");
-        String headerLocation = resume.headerInfo.getOrDefault("Location", ""); 
-        String github         = resume.headerInfo.getOrDefault("GitHub",   "");
+        String name = escapeLatex(resume.headerInfo.getOrDefault("Name", ""));
+        String email = escapeLatex(resume.headerInfo.getOrDefault("Email", ""));
+        String github = escapeLatex(resume.headerInfo.getOrDefault("GitHub", "").replaceFirst("https?://", ""));
 
         latex.append("\\begin{center}\n");
-        latex.append("    {\\Huge \\textbf{" + name.toUpperCase() + "}} \\\\[4pt]\n");
-        latex.append("    {\\large Student} \\\\[6pt]\n");
-        latex.append("    \\small ");
+        double nameSize = fontSizeVal + 8.0;
+        latex.append("    {\\fontsize{").append(String.format(Locale.US, "%.1f", nameSize))
+                .append("}{").append(nameSize + 2).append("}\\selectfont \\textbf{").append(name.toUpperCase())
+                .append("}} \\\\[4pt]\n");
 
-        boolean firstHeader = true;
-        if (!email.isEmpty()) {
-            latex.append("\\href{mailto:" + email + "}{" + email + "}");
-            firstHeader = false;
-        }
-        if (!headerLocation.isEmpty()) {
-            if (!firstHeader) latex.append(" \\ \\textemdash \\ ");
-            latex.append(headerLocation);
-            firstHeader = false;
-        }
-        if (!github.isEmpty()) {
-            if (!firstHeader) latex.append(" \\ \\textemdash \\ ");
-            String ghDisplay = github.replaceFirst("https?://", "");
-            latex.append("\\href{https://" + ghDisplay + "}{" + ghDisplay + "}");
-        }
+        latex.append("    {\\fontsize{").append(String.format(Locale.US, "%.1f", subtitleSize))
+                .append("}{").append(subtitleSize + 2).append("}\\selectfont Student} \\\\[6pt]\n");
+
+        latex.append("    \\small ").append(email);
+        if (!github.isEmpty())
+            latex.append(" \\ \\textemdash \\ ").append(github);
         latex.append("\n\\end{center}\n");
-latex.append("\\vspace{6pt}\n\n");
+        latex.append(headerSpacing).append("\n\n");
 
         // ================= SECTIONS =================
+        Set<String> ignore = Set.of("Location", "Role", "Timeline", "Degree", "ExpectedGraduation", "Graduation",
+                "TechStack");
+
         for (Section section : resume.sections) {
-            latex.append("\\section{" + section.title + "}\n");
+            latex.append("\\section{").append(escapeLatex(section.title)).append("}\n");
             latex.append("  \\resumeSubHeadingListStart\n");
 
             for (SubSection sub : section.subSections) {
-                String loc       = sub.keyValues.getOrDefault("Location", "");
-                String role      = sub.keyValues.getOrDefault("Role", "");
-                String techStack = sub.keyValues.getOrDefault("TechStack", "");
-                String timeline  = sub.keyValues.getOrDefault("Timeline", "");
-                String grad      = sub.keyValues.getOrDefault("Graduation", "");
-                String expGrad   = sub.keyValues.getOrDefault("ExpectedGraduation", "");
-                String degree    = sub.keyValues.getOrDefault("Degree", "");
-                String coursework = sub.keyValues.getOrDefault("Coursework", "");
-                String grade     = sub.keyValues.getOrDefault("Grade", sub.keyValues.getOrDefault("GPA", ""));
+                String role = escapeLatex(sub.keyValues.getOrDefault("Role", sub.keyValues.getOrDefault("Degree", "")));
+                String time = escapeLatex(
+                        sub.keyValues.getOrDefault("Timeline", sub.keyValues.getOrDefault("ExpectedGraduation", "")));
+                String tech = escapeLatex(sub.keyValues.getOrDefault("TechStack", ""));
 
-                String dateStr = timeline.isEmpty() ? (expGrad.isEmpty() ? grad : expGrad) : timeline;
-                String subtitle = degree;
-                if (!grade.isEmpty()) subtitle += (subtitle.isEmpty() ? "" : "; ") + grade;
-                if (degree.isEmpty()) {
-                    if (!role.isEmpty()) subtitle = "Tech stack: " + role;
-                    else if (!techStack.isEmpty()) subtitle = "Tech stack: " + techStack;
+                String subtitle = role;
+                if (!tech.isEmpty() && role.isEmpty())
+                    subtitle = "Tech: " + tech;
+
+                latex.append("    \\item\n");
+                latex.append("    \\begin{tabular*}{0.97\\textwidth}{l@{\\extracolsep{\\fill}}r}\n");
+                latex.append("      \\textbf{").append(escapeLatex(sub.title)).append("} & ").append(time)
+                        .append(" \\\\\n");
+                latex.append("      \\textit{\\small ").append(subtitle).append("} & \\textit{\\small ")
+                        .append(escapeLatex(sub.keyValues.getOrDefault("Location", ""))).append("} \\\\\n");
+                latex.append("    \\end{tabular*}\\vspace{-5pt}\n");
+
+                List<String> customKeys = new ArrayList<>();
+                for (String key : sub.keyValues.keySet()) {
+                    if (ignore.stream().noneMatch(key::equalsIgnoreCase) && !key.equalsIgnoreCase("Highlights")) {
+                        customKeys.add(key);
+                    }
                 }
 
-                latex.append("    \\resumeSubheading\n");
-                latex.append("      {" + sub.title + "}{" + loc + "}\n");
-                latex.append("      {" + subtitle + "}{" + dateStr + "}\n");
-
-                if (!sub.bullets.isEmpty() || !sub.keyValues.getOrDefault("Description", "").isEmpty() || !coursework.isEmpty()) {
+                if (!sub.bullets.isEmpty() || !customKeys.isEmpty()) {
                     latex.append("    \\resumeItemListStart\n");
-                    if (!coursework.isEmpty()) latex.append("      \\resumeItemBullet{\\textbf{Coursework: } " + coursework + "}\n");
-                    String desc = sub.keyValues.getOrDefault("Description", "");
-                    if (!desc.isEmpty()) latex.append("      \\resumeItemBullet{" + desc + "}\n");
-                    for (String bullet : sub.bullets) latex.append("      \\resumeItemBullet{" + bullet + "}\n");
+                    for (String key : customKeys) {
+                        latex.append("      \\item\\small{\\textbf{").append(escapeLatex(key)).append("}: ")
+                                .append(escapeLatex(sub.keyValues.get(key))).append("}\n");
+                    }
+                    for (String bullet : sub.bullets) {
+                        String clean = bullet.contains(":") ? bullet.substring(bullet.indexOf(":") + 1).trim() : bullet;
+                        latex.append("      \\item\\small{").append(escapeLatex(clean)).append("}\n");
+                    }
                     latex.append("    \\resumeItemListEnd\n");
                 }
             }

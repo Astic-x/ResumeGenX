@@ -1,16 +1,15 @@
 package compiler.parser;
 
 import compiler.lexer.*;
-import compiler.ast.*; // Import the new AST classes!
+import compiler.ast.*;
 import java.util.List;
 
 public class Parser {
-
     private List<Token> tokens;
     private int position = 0;
     private Token currentToken;
 
-    // --- AST State Tracking ---
+    // AST state
     private Resume resume;
     private Section currentSection;
     private SubSection currentSubSection;
@@ -18,7 +17,7 @@ public class Parser {
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
         this.currentToken = tokens.get(position);
-        this.resume = new Resume(); // Initialize the root of our tree
+        this.resume = new Resume();
     }
 
     private void eat(Token.TokenType type) {
@@ -33,8 +32,7 @@ public class Parser {
         }
     }
 
-    // ================= ENTRY =================
-    // Now returns the completed Resume object!
+    // Parse Resume
     public Resume parseResume() {
         while (currentToken.getType() == Token.TokenType.NEWLINE) {
             eat(Token.TokenType.NEWLINE);
@@ -44,7 +42,7 @@ public class Parser {
             if (currentToken.getType() == Token.TokenType.KEYWORD_SECTION) {
                 parseSection();
             } else if (currentToken.getType() == Token.TokenType.IDENTIFIER) {
-                // Top-level KeyValues (Name, Email, etc.) go into the Resume header
+                // Add top-level keys to header
                 String[] kv = parseKeyValue();
                 resume.headerInfo.put(kv[0], kv[1]);
             } else if (currentToken.getType() == Token.TokenType.NEWLINE) {
@@ -56,20 +54,17 @@ public class Parser {
         return resume;
     }
 
-    // ================= SECTION =================
+    // Parse Section
     private void parseSection() {
         eat(Token.TokenType.KEYWORD_SECTION);
-
-        if (currentToken.getType() == Token.TokenType.ASSIGN_OP) {
-            eat(Token.TokenType.ASSIGN_OP);
-        }
+        eat(Token.TokenType.ASSIGN_OP); // Enforce Section assignment
 
         String sectionName = currentToken.getValue();
         eat(Token.TokenType.STRING_VALUE);
 
-        // Create a new Section node and set it as the active section
+        // Create active Section
         currentSection = new Section(sectionName);
-        currentSubSection = null; // Reset the active subsection
+        currentSubSection = null;
 
         if (currentToken.getType() == Token.TokenType.NEWLINE) {
             eat(Token.TokenType.NEWLINE);
@@ -80,11 +75,11 @@ public class Parser {
             parseContent();
         }
 
-        // Once the section is done, attach it to the Resume root
+        // Attach Section
         resume.sections.add(currentSection);
     }
 
-    // ================= CONTENT =================
+    // Parse Content
     private void parseContent() {
         switch (currentToken.getType()) {
             case IDENTIFIER:
@@ -98,13 +93,6 @@ public class Parser {
                 parseSubSection();
                 break;
 
-            case BULLET_ITEM:
-                String bullet = parseBullet();
-                if (currentSubSection != null) {
-                    currentSubSection.bullets.add(bullet);
-                }
-                break;
-
             case NEWLINE:
                 eat(Token.TokenType.NEWLINE);
                 break;
@@ -114,39 +102,61 @@ public class Parser {
         }
     }
 
-    // ================= KEY VALUE =================
-    // Now returns a String array [Key, Value] instead of void
+    // Parse Key-Value and bullets
     private String[] parseKeyValue() {
         String key = currentToken.getValue();
         eat(Token.TokenType.IDENTIFIER);
-
-        eat(Token.TokenType.ASSIGN_OP);
+        eat(Token.TokenType.ASSIGN_OP); // Mandatory assignment
 
         String value = "";
+
+        // Handle string value
         if (currentToken.getType() == Token.TokenType.STRING_VALUE) {
             value = currentToken.getValue();
             eat(Token.TokenType.STRING_VALUE);
-        }
 
-        if (currentToken.getType() == Token.TokenType.NEWLINE) {
+            if (currentToken.getType() == Token.TokenType.NEWLINE) {
+                eat(Token.TokenType.NEWLINE);
+            }
+        } 
+        // Handle bullet list or newline
+        else if (currentToken.getType() == Token.TokenType.NEWLINE) {
             eat(Token.TokenType.NEWLINE);
+
+            // Parse bullets
+            while (currentToken.getType() == Token.TokenType.BULLET_ITEM) {
+                String bulletText = parseBullet();
+                if (currentSubSection != null) {
+                    // Prepend key to bullet
+                    currentSubSection.bullets.add(key + ": " + bulletText);
+                }
+            }
         }
 
         return new String[] { key, value };
     }
 
-    // ================= SUBSECTION =================
+    // Parse Bullet
+    private String parseBullet() {
+        String bullet = currentToken.getValue();
+        eat(Token.TokenType.BULLET_ITEM);
+
+        if (currentToken.getType() == Token.TokenType.NEWLINE) {
+            eat(Token.TokenType.NEWLINE);
+        }
+
+        return bullet;
+    }
+
+    // Parse SubSection
     private void parseSubSection() {
         eat(Token.TokenType.KEYWORD_SUBSECTION);
-
-        if (currentToken.getType() == Token.TokenType.ASSIGN_OP) {
-            eat(Token.TokenType.ASSIGN_OP);
-        }
+        eat(Token.TokenType.ASSIGN_OP); // Enforce SubSection assignment
 
         String name = currentToken.getValue();
         eat(Token.TokenType.STRING_VALUE);
 
-        // Create a new SubSection node
+        // Create SubSection
         currentSubSection = new SubSection(name);
 
         if (currentToken.getType() == Token.TokenType.NEWLINE) {
@@ -159,49 +169,31 @@ public class Parser {
             parseContent();
         }
 
-        // Attach this finished SubSection to the active Section
+        // Attach SubSection
         currentSection.subSections.add(currentSubSection);
     }
 
-    // ================= BULLET =================
-    // Now returns the bullet text string
-    private String parseBullet() {
-        String bullet = currentToken.getValue();
-        eat(Token.TokenType.BULLET_ITEM);
-
-        if (currentToken.getType() == Token.TokenType.NEWLINE) {
-            eat(Token.TokenType.NEWLINE);
-        }
-
-        return bullet;
-    }
-
-    // =========================================================================
-    // Independent Parser Verification Test
-    // =========================================================================
+//    // Independent parser test
 //    public static void main(String[] args) {
-//        System.out.println("--- Booting Independent Parser Test ---");
-//
+//        System.out.println("Starting parser test");
 //        try {
 //            String fileContent = java.nio.file.Files.readString(java.nio.file.Path.of("Sample.rdl"));
 //            Lexer lexer = new Lexer(fileContent);
 //            java.util.List<Token> tokens = lexer.tokenize();
 //            
-//            System.out.println("--- LEXER TOKENS READY ---");
+//            System.out.println("Lexer tokens ready");
 //            
 //            Parser parser = new Parser(tokens);
 //            Resume myResume = parser.parseResume();
 //
-//            System.out.println("--- AST BUILT SUCCESSFULLY ---");
+//            System.out.println("AST built successfully");
 //            System.out.println("Candidate Name: " + myResume.headerInfo.get("Name"));
-//            System.out.println("Total Sections Found: " + myResume.sections.size());
+//            System.out.println("Total Sections: " + myResume.sections.size());
 //
 //            for (Section s : myResume.sections) {
 //                System.out.println(" -> Section: " + s.title + " (" + s.subSections.size() + " subsections)");
 //            }
-//
-//            System.out.println("--- Parser Test Complete ---");
-//
+//            System.out.println("Parser test complete");
 //        } catch (java.io.IOException e) {
 //            e.printStackTrace();
 //            System.err.println("Error reading the file: " + e.getMessage());
