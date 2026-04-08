@@ -1,0 +1,17 @@
+Name = Rahul Verma
+Email : rahul.verma@email.com
+Location = Delhi, India
+GitHub : github.com/rahulverma
+
+Section: Education
+    SubSection = Delhi Technological University
+        Degree : B.Tech Information Technology
+        ExpectedGraduation = 2026
+
+Section: Projects
+    SubSection: TaskManager
+        Role : Developer
+        Description = Built a simple task management application for tracking daily activities.
+        Highlights:
+            - Implemented CRUD operations using Java.
+            - Designed user-friendly interface for task handling.

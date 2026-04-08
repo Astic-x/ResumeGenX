@@ -1,0 +1,17 @@
+Name = Alex Sparse
+Email = alex.sparse@example.com
+Location = Austin, TX
+GitHub = github.com/alexsparse
+
+Section = "Education"
+SubSection = "State University"
+Degree = B.S. Computer Science
+ExpectedGraduation = 2027
+
+Section = "Experience"
+SubSection = "Local Tech Shop"
+Role = IT Support Intern
+Timeline = 2024 - Present
+Highlights =
+- Resolved over 500 hardware and software tickets for local businesses.
+- Upgraded internal network infrastructure, improving speeds by 20%.
