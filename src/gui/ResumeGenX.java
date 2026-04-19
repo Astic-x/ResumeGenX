@@ -26,9 +26,7 @@ import java.io.File;
 
 public class ResumeGenX extends Application {
 
-    // ══════════════════════════════════════════════════════════════════
     // STAGE REFERENCE — shared between pages
-    // ══════════════════════════════════════════════════════════════════
     static Stage primaryStage;
 
     @Override
@@ -59,9 +57,7 @@ public class ResumeGenX extends Application {
         launch(args);
     }
 
-    // ══════════════════════════════════════════════════════════════════
     // THEME — centralised palette & style helpers
-    // ══════════════════════════════════════════════════════════════════
     static class Theme {
         // Background & surfaces
         static final String BG = "#0B0C10";
@@ -310,9 +306,7 @@ public class ResumeGenX extends Application {
         }
     }
 
-    // ══════════════════════════════════════════════════════════════════
     // PAGE 1 — Upload Screen
-    // ══════════════════════════════════════════════════════════════════
     static class Page1 {
 
         private final BorderPane root;
@@ -333,7 +327,7 @@ public class ResumeGenX extends Application {
             return root;
         }
 
-        // ── NAV ──────────────────────────────────────────────────────
+        // NAV
         private HBox buildNav() {
             HBox nav = new HBox();
             nav.setStyle(Theme.nav());
@@ -352,7 +346,7 @@ public class ResumeGenX extends Application {
             return nav;
         }
 
-        // ── BODY ─────────────────────────────────────────────────────
+        // BODY
         private HBox buildBody() {
             VBox left = buildLeft();
             VBox right = buildGuide();
@@ -368,7 +362,7 @@ public class ResumeGenX extends Application {
             return body;
         }
 
-        // ── LEFT — title + upload zone + submit ───────────────────────
+        // LEFT — title + upload zone + submit
         private VBox buildLeft() {
             // Title
             Text l1 = new Text("Upload your\n");
@@ -560,7 +554,7 @@ public class ResumeGenX extends Application {
             submitBtn.setStyle(Theme.btnPrimary());
         }
 
-        // ── RIGHT — Guide panel ────────────────────────────────────────
+        // RIGHT — Guide panel
         private VBox buildGuide() {
             // Header
             StackPane iconBox = new StackPane();
@@ -681,7 +675,7 @@ public class ResumeGenX extends Application {
             return root;
         }
 
-        // ── NAV ──────────────────────────────────────────────────────
+        // NAV
         private HBox buildNav() {
             Region sp = new Region();
             HBox.setHgrow(sp, Priority.ALWAYS);
@@ -702,7 +696,7 @@ public class ResumeGenX extends Application {
             return nav;
         }
 
-        // ── BODY ─────────────────────────────────────────────────────
+        // BODY
         private ScrollPane buildBody() {
             // Page header
             Text t1 = new Text("Choose a ");
@@ -859,7 +853,7 @@ public class ResumeGenX extends Application {
             return card;
         }
 
-        // ── TEMPLATE PREVIEWS ─────────────────────────────────────────
+        // TEMPLATE PREVIEWS
         private Pane buildPreview(String id) {
             Pane p = new Pane();
             String bg = switch (id) {
@@ -1013,7 +1007,7 @@ public class ResumeGenX extends Application {
             r(p, 111, 115, 26, 9, 3, Theme.RED, 0.4);
         }
 
-        // ── GENERATE BAR ─────────────────────────────────────────────
+        // GENERATE BAR
         private HBox buildGenBar() {
             Label lbl = new Label("SELECTED TEMPLATE");
             lbl.setStyle("-fx-text-fill:" + Theme.SILVER_LO
