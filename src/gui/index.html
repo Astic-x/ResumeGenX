@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ResumeGenX — Upload</title>
+<link rel="stylesheet" href="style.css"/>
+<style>
+  /* ── PAGE 1 SPECIFIC STYLES ── */
+  .hero {
+    flex: 1; display: grid; grid-template-columns: 1.05fr 0.95fr;
+    max-width: 1240px; margin: 0 auto;
+    padding: 56px 52px; width: 100%; align-items: start; gap: 0;
+  }
+  .hero-left { padding-right: 52px; }
+
+  .hero-desc {
+    color: var(--muted2); line-height: 1.75;
+    font-size: 0.9rem; margin-bottom: 36px; max-width: 430px;
+  }
+
+  /* Upload Zone */
+  .upload-card {
+    background: var(--card-sheen);
+    border: 1px solid var(--border2);
+    border-radius: 14px; padding: 40px 28px;
+    text-align: center; cursor: pointer;
+    transition: all .25s; position: relative; overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(154,160,190,0.08), 0 4px 24px rgba(0,0,0,0.4);
+  }
+  .upload-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg,rgba(154,160,190,0.04) 0%,transparent 40%,rgba(241,60,32,0.06) 100%);
+    opacity: 0; transition: opacity .3s;
+  }
+  .upload-card::after {
+    content: ''; position: absolute;
+    top: 0; left: -100%; width: 60%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(200,210,240,0.04), transparent);
+    transition: left .5s ease;
+  }
+  .upload-card:hover { border-color: var(--red); }
+  .upload-card:hover::before { opacity: 1; }
+  .upload-card:hover::after { left: 150%; }
+  .upload-card.drag-over { border-color: var(--cobalt); background: var(--card-sheen2); }
+
+  .upload-icon {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg,rgba(241,60,32,0.15),rgba(64,86,161,0.15));
+    border: 1px solid rgba(241,60,32,0.3); border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 18px; font-size: 1.4rem; color: var(--red);
+    box-shadow: 0 2px 12px rgba(241,60,32,0.2), inset 0 1px 0 rgba(255,255,255,0.08);
+  }
+  .upload-card h3 { font-size: 0.96rem; font-weight: 700; color: var(--silver-hi); margin-bottom: 6px; }
+  .upload-card .sub { font-size: 0.8rem; color: var(--muted2); margin-bottom: 18px; line-height: 1.5; }
+
+  .file-types { display: flex; gap: 8px; justify-content: center; }
+  .ft-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.67rem; font-weight: 600;
+    padding: 4px 12px; border-radius: 5px;
+    background: rgba(241,60,32,0.1); color: var(--red);
+    border: 1px solid rgba(241,60,32,0.3); letter-spacing: 0.5px;
+  }
+  #fileInput { display: none; }
+
+  .file-selected {
+    display: none; align-items: center; gap: 12px;
+    background: rgba(64,86,161,0.1); border: 1px solid rgba(64,86,161,0.3);
+    border-radius: 9px; padding: 11px 15px; margin-top: 14px; text-align: left;
+  }
+  .file-selected.show { display: flex; }
+  .file-selected .fname {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; color: var(--cobalt-h);
+    flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .remove-file { background: none; border: none; color: var(--muted2); cursor: pointer; font-size: 0.9rem; transition: color .2s; }
+  .remove-file:hover { color: var(--red); }
+
+  .progress-wrap { display: none; margin-top: 14px; background: var(--border); border-radius: 4px; height: 3px; overflow: hidden; }
+  .progress-wrap.show { display: block; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--cobalt), var(--red)); border-radius: 4px; width: 0%; transition: width .35s; }
+
+  .btn-primary { margin-top: 20px; width: 100%; }
+
+  /* Guide Panel */
+  .guide-panel {
+    background: var(--card-sheen);
+    border: 1px solid var(--border2);
+    border-left: 3px solid var(--cobalt);
+    border-radius: 14px; overflow: hidden;
+    position: sticky; top: 82px;
+    box-shadow: inset 0 1px 0 rgba(154,160,190,0.08), 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .guide-header {
+    padding: 17px 22px; border-bottom: 1px solid var(--border2);
+    display: flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg,rgba(64,86,161,0.12) 0%,rgba(15,17,22,0.8) 100%);
+  }
+  .guide-header-icon {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg,rgba(64,86,161,0.3),rgba(64,86,161,0.1));
+    border: 1px solid rgba(64,86,161,0.4); border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.85rem; color: var(--cobalt-h);
+  }
+  .guide-header h2 { font-size: 0.9rem; font-weight: 700; flex: 1; color: var(--silver-hi); }
+  .guide-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem; font-weight: 600;
+    background: rgba(64,86,161,0.18); color: var(--cobalt-h);
+    padding: 3px 8px; border-radius: 4px; letter-spacing: 0.5px;
+    border: 1px solid rgba(64,86,161,0.35);
+  }
+  .guide-body { padding: 22px; max-height: calc(100vh - 200px); overflow-y: auto; }
+  .guide-section { margin-bottom: 24px; }
+  .guide-section:last-child { margin-bottom: 0; }
+  .guide-section h4 {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--cobalt-h);
+    text-transform: uppercase; letter-spacing: 1.8px; margin-bottom: 11px; font-weight: 600;
+  }
+
+  @media (max-width: 860px) {
+    .hero { grid-template-columns: 1fr; padding: 32px 22px; }
+    .hero-left { padding-right: 0; margin-bottom: 30px; }
+    .guide-panel { position: static; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- NAV -->
+  <nav>
+    <a class="logo" href="index.html">
+      <div class="logo-icon">R</div>
+      <div class="logo-text"><span class="lt">Resume</span><span class="acc">GenX</span></div>
+    </a>
+    <div class="nav-steps">
+      <div class="step-pill active">01 &nbsp;Upload</div>
+      <div class="step-sep">›</div>
+      <div class="step-pill">02 &nbsp;Template</div>
+      <div class="step-sep">›</div>
+      <div class="step-pill">03 &nbsp;Generate</div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+
+    <!-- LEFT: Upload area -->
+    <div class="hero-left">
+      <div class="page-eyebrow">Step 01 — Data Input</div>
+      <h1>Upload your<br/><span class="hl">resume data</span> file</h1>
+      <p class="hero-desc">
+        Provide your structured <span class="mono">.rdl</span> data file to begin.
+        Once uploaded, proceed to select a template and export your resume.
+      </p>
+
+      <!-- Upload section -->
+      <div class="upload-card" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+        <div class="upload-icon">↑</div>
+        <h3>Drag &amp; drop your .rdl file</h3>
+        <p class="sub">or click to browse &nbsp;·&nbsp; max 5 MB</p>
+        <div class="file-types"><span class="ft-badge">.rdl</span></div>
+        <input type="file" id="fileInput" accept=".rdl" onchange="handleFile(event)"/>
+      </div>
+
+      <!-- File selected row -->
+      <div class="file-selected" id="fileSelected">
+        <span style="color:var(--cobalt-h)">⬡</span>
+        <span class="fname" id="fileName">—</span>
+        <button class="remove-file" onclick="removeFile(event)">✕</button>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="progress-wrap" id="uploadProgress">
+        <div class="progress-bar" id="uploadBar"></div>
+      </div>
+
+      <!-- Submit -->
+      <button class="btn-primary" id="submitBtn" disabled onclick="goToTemplates()">
+        Proceed to Template Selection
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
+          <path d="M3 7.5h9M8.5 3.5l4 4-4 4" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- RIGHT Panel -->
+    <div class="guide-panel">
+      <div class="guide-header">
+        <div class="guide-header-icon">⌗</div>
+        <h2>Input File Guide</h2>
+        <span class="guide-badge">DOCS</span>
+      </div>
+      <div class="guide-body">
+
+        <div class="guide-section">
+          <h4>About the .rdl format</h4>
+          <div class="info-box">
+            <span>ℹ</span>
+            <span><strong style="color:var(--silver-hi)">.rdl</strong> (Resume Data Layout) is ResumeGenX's custom plain-text format — structured like a simple key-value file, readable in any text editor.</span>
+          </div>
+          <div class="guide-step"><div class="step-num">01</div><div class="step-text">Create a plain text file and save it with the <strong>.rdl</strong> extension — e.g. <span class="mono">my_resume.rdl</span></div></div>
+          <div class="guide-step"><div class="step-num">02</div><div class="step-text">Write your data using <strong>KEY: value</strong> pairs. Separate sections with a blank line.</div></div>
+          <div class="guide-step"><div class="step-num">03</div><div class="step-text">Multi-value fields use a <strong>pipe separator</strong> — <span class="mono">val1 | val2 | val3</span></div></div>
+        </div>
+
+        <div class="guide-section">
+          <h4>File structure example</h4>
+          <div class="code-sample">
+<span class="c"># Personal Info</span><br/>
+<span class="k">NAME</span>: <span class="v">John Doe</span><br/>
+<span class="k">EMAIL</span>: <span class="v">john@email.com</span><br/>
+<span class="k">PHONE</span>: <span class="v">+91 99999 99999</span><br/><br/>
+<span class="c"># Skills</span><br/>
+<span class="k">SKILLS</span>: <span class="v">Python | React | Node.js</span><br/><br/>
+<span class="c"># Education</span><br/>
+<span class="k">EDU_DEGREE</span>: <span class="v">B.Tech Computer Science</span><br/>
+<span class="k">EDU_YEAR</span>: <span class="v">2024</span><br/><br/>
+<span class="c"># Experience</span><br/>
+<span class="k">EXP_TITLE</span>: <span class="v">Software Intern</span><br/>
+<span class="k">EXP_COMPANY</span>: <span class="v">Acme Corp</span><br/>
+<span class="k">EXP_PERIOD</span>: <span class="v">2023-05 to 2023-08</span>
+          </div>
+        </div>
+
+        <div class="guide-section">
+          <h4>Common mistakes to avoid</h4>
+          <div class="warn-box"><span>⚠</span><span>Do <strong>not</strong> rename a <span class="mono">.txt</span> to <span class="mono">.rdl</span> — the parser validates internal structure, not just the extension.</span></div>
+          <div class="warn-box"><span>⚠</span><span>Avoid <strong>&lt; &gt; &amp; \ " '</strong> inside values — these break LaTeX rendering on export.</span></div>
+          <div class="guide-step"><div class="step-num">✓</div><div class="step-text">Keys must be <strong>UPPERCASE</strong> with underscores — e.g. <span class="mono">EXP_TITLE</span></div></div>
+          <div class="guide-step"><div class="step-num">✓</div><div class="step-text">Date format: <strong>YYYY-MM</strong> — e.g. <span class="mono">2023-06</span></div></div>
+          <div class="guide-step"><div class="step-num">✓</div><div class="step-text">Sections separated by <strong>exactly one blank line</strong>.</div></div>
+          <div class="guide-step"><div class="step-num">✓</div><div class="step-text">Save as <strong>UTF-8</strong> encoding. Max size: <strong>5 MB</strong>.</div></div>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- end hero -->
+
+</div><!-- end page-wrap -->
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span id="toastIcon">✓</span>
+  <span id="toastMsg">File ready</span>
+</div>
+
+<script>
+  let selectedFile = null;
+
+  // Drag & drop
+  const zone = document.getElementById('uploadZone');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+  zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e => {
+    e.preventDefault(); zone.classList.remove('drag-over');
+    const f = e.dataTransfer.files[0]; if (f) processFile(f);
+  });
+
+  function handleFile(e) { const f = e.target.files[0]; if (f) processFile(f); }
+
+  function processFile(f) {
+    const ext = f.name.split('.').pop().toLowerCase();
+    if (ext !== 'rdl') { showToast('✕', 'Only .rdl files are accepted'); return; }
+    if (f.size > 5 * 1024 * 1024) { showToast('✕', 'File exceeds the 5 MB limit'); return; }
+
+    selectedFile = f;
+    document.getElementById('fileName').textContent = f.name;
+    document.getElementById('fileSelected').classList.add('show');
+
+    // Progress animation
+    const wrap = document.getElementById('uploadProgress');
+    const bar  = document.getElementById('uploadBar');
+    wrap.classList.add('show'); bar.style.width = '0%';
+    let p = 0;
+    const t = setInterval(() => {
+      p += Math.random() * 22;
+      bar.style.width = Math.min(p, 100) + '%';
+      if (p >= 100) {
+        clearInterval(t);
+        setTimeout(() => wrap.classList.remove('show'), 500);
+        document.getElementById('submitBtn').disabled = false;
+        showToast('✓', f.name + ' — ready to proceed');
+      }
+    }, 70);
+  }
+
+  function removeFile(e) {
+    e.stopPropagation();
+    selectedFile = null;
+    document.getElementById('fileSelected').classList.remove('show');
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('fileInput').value = '';
+  }
+
+  // Navigate to page 2 — pass filename via sessionStorage
+  function goToTemplates() {
+    if (!selectedFile) return;
+    sessionStorage.setItem('uploadedFile', selectedFile.name);
+    window.location.href = 'templates.html';
+  }
+
+  function showToast(icon, msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toastIcon').textContent = icon;
+    document.getElementById('toastMsg').textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+</script>
+</body>
+</html>
