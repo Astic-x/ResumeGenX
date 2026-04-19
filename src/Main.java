@@ -13,29 +13,25 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-
-        System.out.println("==========================================");
         System.out.println("  ResumeGenX - Combined Compiler Test  ");
-        System.out.println("==========================================");
-
         try {
-            // ================= 1. READ INPUT =================
-            String fileName = args.length > 0 ? args[0] : "Sample1.rdl";
+            // 1. READ INPUT
+            String fileName = args.length > 0 ? args[0] : "Sample.rdl";
 
-            System.out.println("[1/5] Reading input file '" + fileName + "'...");
+            System.out.println("1. Reading input file '" + fileName + "'...");
             String fileContent = Files.readString(Path.of(fileName));
             System.out.println("      File read successfully. Length: "
                     + fileContent.length() + " characters.\n");
 
-            // ================= 2. LEXER =================
-            System.out.println("[2/5] Running Lexer...");
+            // 2. LEXER
+            System.out.println("2. Running Lexer...");
             Lexer lexer = new Lexer(fileContent);
             List<Token> tokens = lexer.tokenize();
             System.out.println("      Lexer finished successfully. Generated "
                     + tokens.size() + " tokens.\n");
 
-            // ================= 3. PARSER =================
-            System.out.println("[3/5] Running Parser...");
+            // 3. PARSER
+            System.out.println("3. Running Parser...");
             Parser parser = new Parser(tokens);
             Resume myResume = parser.parseResume();
             System.out.println("      Parser finished successfully.\n");
@@ -43,18 +39,15 @@ public class Main {
             // DEBUG
             System.out.println("DEBUG: AST successfully created\n");
 
-            // ================= 4. SEMANTIC ANALYSIS =================
-            System.out.println("[4/5] Running Semantic Analyzer...");
+            // 4. SEMANTIC ANALYSIS
+            System.out.println("4. Running Semantic Analyzer...");
             SemanticAnalyzer analyzer = new SemanticAnalyzer();
 
             analyzer.analyze(myResume);
             System.out.println("      Semantic analysis completed.\n");
 
-            // ================= 5. PRINT AST =================
-            System.out.println("==========================================");
+            // 5. PRINT AST
             System.out.println("  Abstract Syntax Tree (AST) Summary ");
-            System.out.println("==========================================");
-
             System.out.println("Header Info:");
             for (String key : myResume.headerInfo.keySet()) {
                 System.out.println("  - " + key + ": " + myResume.headerInfo.get(key));
@@ -67,21 +60,18 @@ public class Main {
             }
 
             System.out.println("\n  Test Completed Without Errors  ");
-
-            System.out.println("\n==========================================");
             System.out.println("  Execution Completed ");
-            System.out.println("==========================================");
-
-            // ================= 6. LATEX GENERATION =================
-            System.out.println("[5/5] Generating LaTeX...");
+            // 6. LATEX GENERATION
+            System.out.println("5. Generating LaTeX...");
 
             String latexCode = LatexGenerator.generate(myResume);
 
             // Print preview
-            System.out.println("\n----- GENERATED LATEX -----\n");
+            System.out.println("\nGENERATED LATEX \n");
             // System.out.println(latexCode);
 
-            // ================= SAVE TO FILE =================
+            // Save to file
+            
             // Define the workspace directory
             Path workspaceDir = Path.of("workspace");
 

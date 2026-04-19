@@ -25,7 +25,7 @@ public class LatexGenerator {
     public static String generate(Resume resume) {
         StringBuilder latex = new StringBuilder();
 
-        // ================= PIVOT-BASED ELASTIC ENGINE =================
+        // CALCULATE CONTENT SCORE
         int totalSubSections = 0;
         int totalBullets = 0;
         for (Section s : resume.sections) {
@@ -56,7 +56,6 @@ public class LatexGenerator {
 
         int headerGap = (int) Math.floor(25.0 + (0.0 - 25.0) * w);
         int beforeSectionGap = (int) Math.floor(45.0 + (8.0 - 45.0) * w);
-        // 🔥 THE FIX: Slightly increased the gap below the section line
         int afterSectionGap = (int) Math.floor(14.0 + (4.0 - 14.0) * w);
         int itemSep = (int) Math.floor(22.0 + (1.0 - 22.0) * w);
         int topSep = (int) Math.floor(18.0 + (2.0 - 18.0) * w);
@@ -66,13 +65,11 @@ public class LatexGenerator {
         String itemSpacing = String.format(Locale.US, "itemsep=%dpt,parsep=%dpt,topsep=%dpt", itemSep,
                 (int) (itemSep / 2), topSep);
 
-        // ================= PREAMBLE =================
-        latex.append("%-------------------------\n");
+        // PREAMBLE
         latex.append("% ResumeGenX - Pivot-Based Elastic Scaling\n");
         latex.append("% Score: ").append(contentScore).append(" | Weight: ").append(String.format(Locale.US, "%.2f", w))
                 .append("\n");
         latex.append("% Dynamic Font: ").append(String.format(Locale.US, "%.1f", fontSizeVal)).append("pt\n");
-        latex.append("%------------------------\n\n");
 
         latex.append("\\documentclass[letterpaper,10pt]{article}\n\n");
 
@@ -114,7 +111,7 @@ public class LatexGenerator {
         latex.append("\\fontsize{").append(String.format(Locale.US, "%.1f", fontSizeVal))
                 .append("}{").append(lineSpacing).append("}\\selectfont\n\n");
 
-        // ================= HEADER =================
+        // HEADER
         String name = escapeLatex(resume.headerInfo.getOrDefault("Name", ""));
         String email = escapeLatex(resume.headerInfo.getOrDefault("Email", ""));
         String github = escapeLatex(resume.headerInfo.getOrDefault("GitHub", "").replaceFirst("https?://", ""));
@@ -134,7 +131,7 @@ public class LatexGenerator {
         latex.append("\n\\end{center}\n");
         latex.append(headerSpacing).append("\n\n");
 
-        // ================= SECTIONS =================
+        // SECTIONS
         Set<String> ignore = Set.of("Location", "Role", "Timeline", "Degree", "ExpectedGraduation", "Graduation",
                 "TechStack");
 
