@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResumeGenX — Templates</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .page2-content {
+      flex: 1;
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 52px 52px;
+      width: 100%;
+    }
+
+    .page2-header {
+      margin-bottom: 38px;
+    }
+
+    .page2-header h1 {
+      font-size: clamp(1.7rem, 2.8vw, 2.4rem);
+      letter-spacing: -0.7px;
+      margin-bottom: 8px;
+    }
+
+    .page2-header p {
+      color: var(--muted2);
+      font-size: 0.87rem;
+    }
+
+    /* Filter bar */
+    .filter-bar {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 30px;
+    }
+
+    .filter-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.7rem;
+      font-weight: 500;
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--border2);
+      background: var(--card);
+      color: var(--muted2);
+      cursor: pointer;
+      transition: all .2s;
+      box-shadow: inset 0 1px 0 rgba(154, 160, 190, 0.04);
+    }
+
+    .filter-btn:hover {
+      border-color: var(--cobalt);
+      color: var(--cobalt-h);
+    }
+
+    .filter-btn.active {
+      background: linear-gradient(135deg, var(--cobalt) 0%, #334d8a 100%);
+      border-color: var(--cobalt);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 3px 12px rgba(64, 86, 161, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    /* Template grid */
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(226px, 1fr));
+      gap: 18px;
+      margin-bottom: 38px;
+    }
+
+    .template-card {
+      background: var(--card-sheen);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all .22s;
+      position: relative;
+      box-shadow: inset 0 1px 0 rgba(154, 160, 190, 0.06), 0 4px 16px rgba(0, 0, 0, 0.4);
+    }
+
+    .template-card:hover {
+      border-color: rgba(241, 60, 32, 0.55);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(241, 60, 32, 0.15);
+    }
+
+    .template-card.selected {
+      border-color: var(--red);
+      box-shadow: 0 0 0 3px rgba(241, 60, 32, 0.2), 0 12px 32px rgba(241, 60, 32, 0.18);
+    }
+
+    .sel-check {
+      display: none;
+      position: absolute;
+      top: 9px;
+      right: 9px;
+      width: 24px;
+      height: 24px;
+      background: linear-gradient(135deg, var(--red), #c02a10);
+      border-radius: 50%;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      color: #fff;
+      font-weight: 800;
+      box-shadow: 0 2px 8px rgba(241, 60, 32, 0.55);
+    }
+
+    .template-card.selected .sel-check {
+      display: flex;
+    }
+
+    .template-preview {
+      height: 190px;
+      overflow: hidden;
+    }
+
+    .preview-svg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .template-meta {
+      padding: 13px 14px;
+      border-top: 1px solid var(--border);
+      background: linear-gradient(180deg, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0.4) 100%);
+    }
+
+    .template-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--silver-hi);
+      margin-bottom: 6px;
+    }
+
+    .template-tags {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .tmpl-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.59rem;
+      font-weight: 500;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(64, 86, 161, 0.14);
+      color: var(--lavender);
+      border: 1px solid rgba(64, 86, 161, 0.28);
+    }
+
+    /* Generate bar */
+    .generate-bar {
+      background: var(--card-sheen2);
+      border: 1px solid var(--border2);
+      border-left: 3px solid var(--red);
+      border-radius: 14px;
+      padding: 22px 28px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      box-shadow: inset 0 1px 0 rgba(154, 160, 190, 0.06), 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .selected-info {
+      flex: 1;
+    }
+
+    .selected-info .label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.62rem;
+      color: var(--silver-lo);
+      text-transform: uppercase;
+      letter-spacing: 1.3px;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .selected-info .value {
+      font-size: 0.96rem;
+      font-weight: 700;
+      color: var(--silver-hi);
+    }
+
+    .selected-info .value.none {
+      color: var(--muted2);
+      font-weight: 400;
+    }
+
+    .output-options {
+      display: flex;
+      gap: 8px;
+    }
+
+    .out-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      border-radius: 9px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.87rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all .2s;
+    }
+
+    .out-btn.pdf {
+      background: linear-gradient(135deg, var(--red) 0%, #b52d18 100%);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(241, 60, 32, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    }
+
+    .out-btn.pdf:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(241, 60, 32, 0.5);
+    }
+
+    .out-btn.tex {
+      background: linear-gradient(135deg, var(--cobalt) 0%, #334d8a 100%);
+      color: #fff;
+      box-shadow: 0 3px 14px rgba(64, 86, 161, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .out-btn.tex:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(64, 86, 161, 0.45);
+    }
+
+    .out-btn:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    @media (max-width: 860px) {
+      .page2-content {
+        padding: 32px 22px;
+      }
+
+      .generate-bar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .output-options {
+        justify-content: stretch;
+      }
+
+      .out-btn {
+        flex: 1;
+        justify-content: center;
+      }
+    }
+
+    .template-gallery {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .template-card {
+      width: 220px;
+      cursor: pointer;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      text-align: center;
+    }
+
+    .template-card img {
+      width: 100%;
+      border-radius: 6px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      display: block;
+    }
+
+    /* Hover effect */
+    .template-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Active/Selected state */
+    .template-card.selected {
+      border-color: #0A192F;
+      /* Deep navy border for the selected template */
+      transform: scale(1.02);
+    }
+
+    .template-card h3 {
+      margin-top: 12px;
+      font-family: sans-serif;
+      font-size: 14px;
+      color: #333;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="page-wrap">
+
+    <!-- NAV -->
+    <nav>
+      <a class="logo" href="index.html">
+        <div class="logo-icon">R</div>
+        <div class="logo-text"><span class="lt">Resume</span><span class="acc">GenX</span></div>
+      </a>
+      <div class="nav-steps">
+        <div class="step-pill done" onclick="window.location.href='index.html'">✓ &nbsp;Upload</div>
+        <div class="step-sep">›</div>
+        <div class="step-pill active">02 &nbsp;Template</div>
+        <div class="step-sep">›</div>
+        <div class="step-pill">03 &nbsp;Generate</div>
+      </div>
+    </nav>
+
+    <!-- CONTENT -->
+    <div class="page2-content">
+
+      <div class="page2-header">
+        <div class="page-eyebrow">Step 02 — Template Selection</div>
+        <h1>Choose a <span class="hl">template</span></h1>
+        <p>Select the layout that best represents you. All templates support PDF and LaTeX export.</p>
+      </div>
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <button class="filter-btn active" onclick="filterTemplates('all',this)">All</button>
+        <button class="filter-btn" onclick="filterTemplates('minimal',this)">Minimal</button>
+        <button class="filter-btn" onclick="filterTemplates('modern',this)">Modern</button>
+        <button class="filter-btn" onclick="filterTemplates('academic',this)">Academic</button>
+        <button class="filter-btn" onclick="filterTemplates('creative',this)">Creative</button>
+      </div>
+
+      <!-- Template grid -->
+      <div class="template-gallery">
+
+        <div class="template-card" data-tags="minimal" onclick="selectTemplate('Clean Minimal', this)">
+          <div class="sel-check">✓</div>
+          <img src="minimal.png" alt="Clean Minimal">
+          <h3>Clean Minimal</h3>
+        </div>
+
+        <div class="template-card" data-tags="modern" onclick="selectTemplate('Modern Split', this)">
+          <div class="sel-check">✓</div>
+          <img src="modern.png" alt="Modern Split">
+          <h3>Modern Split</h3>
+        </div>
+
+        <div class="template-card" data-tags="academic" onclick="selectTemplate('Academic Pro', this)">
+          <div class="sel-check">✓</div>
+          <img src="monogram.png" alt="Academic Pro">
+          <h3>Academic Pro</h3>
+        </div>
+
+        <div class="template-card" data-tags="academic" onclick="selectTemplate('Centered Elegant', this)">
+          <div class="sel-check">✓</div>
+          <img src="centered.png" alt="Centered Elegant">
+          <h3>Centered Elegant</h3>
+        </div>
+
+        <div class="template-card" data-tags="creative" onclick="selectTemplate('Creative Bold', this)">
+          <div class="sel-check">✓</div>
+          <img src="creativeBold.png" alt="Creative Bold">
+          <h3>Creative Bold</h3>
+        </div>
+
+      </div><!-- end template-grid -->
+
+      <!-- Generate Bar -->
+      <div class="generate-bar">
+        <div class="selected-info">
+          <div class="label">Selected Template</div>
+          <div class="value none" id="selName">No template selected yet</div>
+        </div>
+        <div class="output-options">
+          <button class="out-btn tex" id="btnTex" disabled onclick="generate('latex')">
+            <span>⌨</span> Export LaTeX
+          </button>
+          <button class="out-btn pdf" id="btnPdf" disabled onclick="generate('pdf')">
+            <span>↓</span> Generate PDF
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end page2-content -->
+  </div><!-- end page-wrap -->
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal">
+      <div class="modal-icon" id="modalIcon">✦</div>
+      <h3 id="modalTitle">Resume Generated</h3>
+      <p id="modalMsg">Your resume has been compiled successfully.</p>
+      <div class="modal-btns">
+        <button class="btn-sec" onclick="closeModal()">Close</button>
+        <button class="btn-primary" style="width:auto;margin-top:0;padding:10px 24px" onclick="closeModal()">↓
+          &nbsp;Download</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <span id="toastIcon">✓</span>
+    <span id="toastMsg">File ready</span>
+  </div>
+
+  <script>
+    let selectedTemplate = "Clean Minimal"; // Default fallback
+    const uploadedFile = sessionStorage.getItem('uploadedFile') || 'resume.rdl';
+
+    function filterTemplates(tag, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.template-card').forEach(c => {
+        c.style.display = (tag === 'all' || c.dataset.tags.includes(tag)) ? '' : 'none';
+      });
+    }
+
+
+
+    function selectTemplate(templateName, element) {
+      selectedTemplate = templateName;
+
+      // 1. Remove the 'selected' class from all cards
+      document.querySelectorAll('.template-card').forEach(card => {
+        card.classList.remove('selected');
+      });
+
+      // 2. Add the 'selected' class to the clicked card
+      element.classList.add('selected');
+
+      // 3. Update the Generate Bar text
+      const selNameDiv = document.getElementById('selName');
+      selNameDiv.textContent = templateName;
+      selNameDiv.classList.remove('none');
+
+      // 4. UNLOCK the Generate buttons!
+      document.getElementById('btnTex').disabled = false;
+      document.getElementById('btnPdf').disabled = false;
+    }
+
+    async function generate(type) {
+      if (!selectedTemplate) return;
+
+      const fileContent = sessionStorage.getItem('fileContent');
+      if (!fileContent) {
+        showToast('✕', 'File data lost. Please go back and upload again.');
+        return;
+      }
+
+      // Lock UI while compiling
+      document.getElementById('btnPdf').disabled = true;
+      document.getElementById('btnTex').disabled = true;
+      document.body.style.cursor = 'wait';
+
+      try {
+        // 1. Send data to Java Server
+        const response = await fetch('http://localhost:8080/api/generate', {
+          method: 'POST',
+          headers: {
+            'X-Template-Name': selectedTemplate // Sends the UI selection to Java
+          },
+          body: fileContent
+        });
+
+        if (!response.ok) {
+          throw new Error(await response.text()); // Catch SemanticAnalyzer errors
+        }
+
+        const latexCode = await response.text();
+
+        // 2. Force browser to download the file
+        const blob = new Blob([latexCode], { type: 'text/plain' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `ResumeGenX_${type.toUpperCase()}.tex`; // Both download .tex for now
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        // 3. Show Success Modal
+        document.getElementById('modalIcon').textContent = '✓';
+        document.getElementById('modalTitle').textContent = 'Generation Complete';
+        document.getElementById('modalMsg').textContent = `Successfully compiled ${uploadedFile}. Your download should begin automatically.`;
+        document.getElementById('modal').classList.add('show');
+
+      } catch (err) {
+        alert(err.message); // Show the exact Java error to the user
+      } finally {
+        document.getElementById('btnPdf').disabled = false;
+        document.getElementById('btnTex').disabled = false;
+        document.body.style.cursor = 'default';
+      }
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('show'); }
+    document.getElementById('modal').addEventListener('click', e => {
+      if (e.target.id === 'modal') closeModal();
+    });
+
+    function showToast(icon, msg) {
+      const t = document.getElementById('toast');
+      document.getElementById('toastIcon').textContent = icon;
+      document.getElementById('toastMsg').textContent = msg;
+      t.classList.add('show');
+      setTimeout(() => t.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+
+</html>
