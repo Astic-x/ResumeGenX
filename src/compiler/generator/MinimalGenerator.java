@@ -1,6 +1,10 @@
 package compiler.generator;
 
 import compiler.ast.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class MinimalGenerator implements ResumeGenerator {
@@ -17,14 +21,6 @@ public class MinimalGenerator implements ResumeGenerator {
                 .replace("&", "\\&")
                 .replace("$", "\\$")
                 .replace("#", "\\#");
-    }
-
-    private static String getHeaderVal(Resume resume, String target) {
-        for (String key : resume.headerInfo.keySet()) {
-            if (key.equalsIgnoreCase(target))
-                return escapeLatex(resume.headerInfo.get(key));
-        }
-        return "";
     }
 
     private static boolean sectionIs(String title, String... keywords) {
@@ -45,6 +41,21 @@ public class MinimalGenerator implements ResumeGenerator {
         if (bullet.startsWith("-"))
             bullet = bullet.substring(1).trim();
         return bullet;
+    }
+
+    private String consumeKey(Map<String, String> map, Set<String> consumed, String... keywords) {
+        for (String k : map.keySet()) {
+            if (!consumed.contains(k)) {
+                String lowerK = k.toLowerCase();
+                for (String keyword : keywords) {
+                    if (lowerK.contains(keyword)) {
+                        consumed.add(k);
+                        return escapeLatex(map.get(k));
+                    }
+                }
+            }
+        }
+        return "";
     }
 
     @Override
@@ -71,24 +82,22 @@ public class MinimalGenerator implements ResumeGenerator {
         latex.append("  parsep=0pt\n");
         latex.append("}\n\n");
 
-        // Custom Section Command
+        // 🔥 FIX: Significantly reduced spacing around the section headers
         latex.append("\\newcommand{\\cvsection}[1]{%\n");
-        latex.append("  \\vspace{12pt}\n");
+        latex.append("  \\vspace{6pt}\n");
         latex.append("  \\noindent{\\Large\\bfseries\\uppercase{#1}}\\par\n");
-        latex.append("  \\vspace{2pt}\\hrulefill\\par\\vspace{8pt}\n");
+        latex.append("  \\vspace{2pt}\\hrulefill\\par\\vspace{4pt}\n");
         latex.append("}\n\n");
 
         latex.append("\\begin{document}\n\n");
 
         // ================= HEADER =================
-        String name = getHeaderVal(resume, "Name");
-        String title = getHeaderVal(resume, "Title");
-        String email = getHeaderVal(resume, "Email");
-        String phone = getHeaderVal(resume, "Phone");
-        String loc = getHeaderVal(resume, "Location");
-        String githubRaw = getHeaderVal(resume, "GitHub");
-        String github = githubRaw.replaceFirst("^https?://", "").replaceFirst("^www\\.", "")
-                .replaceFirst("^github\\.com/", "");
+        Set<String> consumedHeaderKeys = new HashSet<>();
+
+        String name = consumeKey(resume.headerInfo, consumedHeaderKeys, "name");
+        String title = consumeKey(resume.headerInfo, consumedHeaderKeys, "title", "role", "profession");
+        String about = consumeKey(resume.headerInfo, consumedHeaderKeys, "about", "summary", "objective", "profile");
+        consumeKey(resume.headerInfo, consumedHeaderKeys, "image", "photo", "avatar");
 
         latex.append("\\begin{center}\n");
         latex.append("  {\\fontsize{28pt}{32pt}\\selectfont\\bfseries ").append(name).append("}\\\\[4pt]\n");
@@ -96,85 +105,84 @@ public class MinimalGenerator implements ResumeGenerator {
             latex.append("  {\\Large ").append(title).append("}\\\\[6pt]\n");
         }
 
-        java.util.List<String> contact = new java.util.ArrayList<>();
-        if (!email.isEmpty())
-            contact.add(email);
-        if (!phone.isEmpty())
-            contact.add(phone);
-        if (!loc.isEmpty())
-            contact.add(loc);
-        if (!github.isEmpty())
-            contact.add(github);
+        List<String> contactInfo = new ArrayList<>();
+        for (String k : resume.headerInfo.keySet()) {
+            if (!consumedHeaderKeys.contains(k)) {
+                String val = escapeLatex(resume.headerInfo.get(k));
+                String displayVal = val.replaceFirst("^https?://", "").replaceFirst("^www\\.", "");
+                contactInfo.add(displayVal);
+            }
+        }
 
-        latex.append("  ").append(String.join(" \\quad|\\quad ", contact)).append("\n");
-        latex.append("\\end{center}\n\\vspace{4pt}\n\n");
+        if (!contactInfo.isEmpty()) {
+            latex.append("  ").append(String.join(" \\quad|\\quad ", contactInfo)).append("\n");
+        }
+        // 🔥 FIX: Tighter header spacing
+        latex.append("\\end{center}\n\\vspace{2pt}\n\n");
 
-        String about = getHeaderVal(resume, "About");
         if (!about.isEmpty()) {
-            latex.append(about).append("\\par\\vspace{8pt}\n");
+            latex.append(about).append("\\par\\vspace{4pt}\n");
         }
 
         // ================= BODY =================
-        Set<String> ignore = Set.of("Role", "Timeline", "StartDate", "Location", "Degree", "ExpectedGraduation",
-                "Graduation", "Year", "TechStack", "Highlights", "Description");
-
         for (Section section : resume.sections) {
             latex.append("\\cvsection{").append(escapeLatex(section.title)).append("}\n");
 
-            // SKILLS / LANGUAGES SECTION HANDLER
-            if (sectionIs(section.title, "skill", "language", "tech")) {
+            // SKILLS / LANGUAGES / TECH HANDLER
+            if (sectionIs(section.title, "skill", "language", "tech", "tool", "arsenal")) {
                 for (SubSection sub : section.subSections) {
-                    latex.append("\\textbf{").append(escapeLatex(sub.title)).append("}: ");
+                    if (sub.title != null && !sub.title.isEmpty()) {
+                        latex.append("\\textbf{").append(escapeLatex(sub.title)).append("}\\par\\vspace{2pt}\n");
+                    }
 
-                    java.util.List<String> skillItems = new java.util.ArrayList<>();
+                    // 🔥 FIX: No more string joining. Prints every key strictly on a new line.
                     for (String key : sub.keyValues.keySet()) {
-                        skillItems.add(
-                                "\\textit{" + escapeLatex(key) + "} (" + escapeLatex(sub.keyValues.get(key)) + ")");
-                    }
-                    for (String bullet : sub.bullets) {
-                        skillItems.add(escapeLatex(cleanBullet(bullet)));
+                        latex.append("\\textbf{").append(escapeLatex(key)).append("}: ")
+                                .append(escapeLatex(sub.keyValues.get(key))).append("\\par\\vspace{2pt}\n");
                     }
 
-                    latex.append(String.join(", ", skillItems)).append("\\par\\vspace{4pt}\n");
+                    if (!sub.bullets.isEmpty()) {
+                        latex.append("\\begin{itemize}\n");
+                        for (String bullet : sub.bullets) {
+                            latex.append("  \\item ").append(escapeLatex(cleanBullet(bullet))).append("\n");
+                        }
+                        latex.append("\\end{itemize}\n");
+                    }
+                    latex.append("\\vspace{4pt}\n");
                 }
                 continue;
             }
 
-            // EXPERIENCE / PROJECTS / EDUCATION HANDLER
+            // STANDARD SECTIONS (Experience, Education, Projects, etc.)
             for (SubSection sub : section.subSections) {
-                String role = escapeLatex(sub.keyValues.getOrDefault("Role", sub.keyValues.getOrDefault("Degree", "")));
-                String locValue = escapeLatex(sub.keyValues.getOrDefault("Location", ""));
-                String time = escapeLatex(sub.keyValues.getOrDefault("Timeline",
-                        sub.keyValues.getOrDefault("ExpectedGraduation",
-                                sub.keyValues.getOrDefault("Graduation",
-                                        sub.keyValues.getOrDefault("Year", "")))));
+                Set<String> consumedSubKeys = new HashSet<>();
 
-                // Heading Row 1: Title & Timeline
+                String time = consumeKey(sub.keyValues, consumedSubKeys, "time", "date", "year", "grad");
+                String role = consumeKey(sub.keyValues, consumedSubKeys, "role", "degree", "position");
+                String locValue = consumeKey(sub.keyValues, consumedSubKeys, "loc", "city", "state");
+
                 latex.append("\\begin{tabularx}{\\linewidth}{@{}X r@{}}\n");
                 latex.append("  \\textbf{\\large ").append(escapeLatex(sub.title)).append("} & \\textbf{").append(time)
                         .append("} \\\\\n");
-                // Heading Row 2: Role & Location
+
                 if (!role.isEmpty() || !locValue.isEmpty()) {
                     latex.append("  \\textit{").append(role).append("} & \\textit{").append(locValue)
                             .append("} \\\\\n");
                 }
                 latex.append("\\end{tabularx}\\par\\vspace{2pt}\n");
 
-                // Explicitly check for Description and render as a paragraph (NO DASHES)
-                String description = escapeLatex(sub.keyValues.getOrDefault("Description", ""));
+                String description = consumeKey(sub.keyValues, consumedSubKeys, "desc", "summary", "about", "detail");
                 if (!description.isEmpty()) {
-                    latex.append(description).append("\\par\\vspace{4pt}\n");
+                    latex.append(description).append("\\par\\vspace{2pt}\n");
                 }
 
-                // Any other arbitrary key-value pairs (rendered cleanly)
                 for (String key : sub.keyValues.keySet()) {
-                    if (!ignore.contains(key)) {
+                    if (!consumedSubKeys.contains(key)) {
                         latex.append("\\textbf{").append(escapeLatex(key)).append("}: ")
                                 .append(escapeLatex(sub.keyValues.get(key))).append("\\par\\vspace{2pt}\n");
                     }
                 }
 
-                // Bullets
                 if (!sub.bullets.isEmpty()) {
                     latex.append("\\begin{itemize}\n");
                     for (String bullet : sub.bullets) {
@@ -182,7 +190,8 @@ public class MinimalGenerator implements ResumeGenerator {
                     }
                     latex.append("\\end{itemize}\n");
                 }
-                latex.append("\\vspace{8pt}\n\n");
+                // 🔥 FIX: Tighter spacing between subsections
+                latex.append("\\vspace{6pt}\n\n");
             }
         }
 

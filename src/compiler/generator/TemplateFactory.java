@@ -11,6 +11,16 @@ public class TemplateFactory {
             case "compact grid":
                 return new MinimalGenerator(); // Uses your existing Elastic Engine
 
+            case "modern split":
+                return new ModernSplitGenerator();
+            case "academic pro":
+                return new MonogramGenerator();
+            case "creative bold":
+                return new CreativeBoldGenerator();
+            case "centered elegant":
+                return new CenteredElegantGenerator();
+            case "tech focused":
+                return new AltaCVGenerator();
             default:
                 return new MinimalGenerator(); // Fallback
         }

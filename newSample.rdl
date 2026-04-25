@@ -1,0 +1,88 @@
+Name = Elena Rodriguez
+Title = Senior Software Engineer
+Email = elena.rodriguez@example.com
+Phone = +1 (555) 123-4567
+Location = San Francisco, CA
+Website = elenarodriguez.dev
+GitHub = github.com/elenarodriguez
+IMAGE = profile.jpg
+About = A results-driven Senior Software Engineer with 6+ years of experience designing scalable backend architectures and leading cross-functional agile teams. 
+    Passionate about distributed systems, performance optimization, and mentoring junior developers to build fault-tolerant cloud applications.
+
+Section: Experience
+
+    SubSection = FinTech Dynamics
+    Role = Senior Backend Engineer
+    Timeline = Aug 2021 - Present
+    Location = San Francisco, CA
+    Description = Lead developer for the core transaction processing pipeline, handling millions of daily requests.
+    Highlights:
+        - Architected and deployed 5+ resilient microservices using Spring Boot and Go, reducing API latency by 40%.
+        - Led the zero-downtime migration of legacy monolithic databases to distributed PostgreSQL clusters on AWS.
+        - Mentored a team of 4 junior engineers, establishing strict code-review guidelines and CI/CD best practices.
+
+    SubSection = Nexus Cloud Solutions
+    Role = Software Engineer
+    Timeline = Jun 2018 - Jul 2021
+    Location = Seattle, WA
+    Description = Full-stack contributor for an enterprise-scale SaaS resource management platform.
+    Highlights:
+        - Built secure, high-throughput RESTful APIs using Node.js and Express.
+        - Optimized complex SQL queries and implemented Redis caching, cutting average page load times in half.
+        - Integrated third-party OAuth2 and payment gateways, achieving strict PCI-DSS compliance.
+
+Section: Projects
+
+    SubSection = StreamTrace Analytics
+    Role = Lead Architect
+    Timeline = Jan 2023 - May 2023
+    Description = An open-source distributed tracing tool designed for serverless cloud architectures.
+    Highlights:
+        - Engineered a high-concurrency ingestion engine using Apache Kafka and MongoDB.
+        - Processed and visualized over 1M+ telemetry events per day with sub-second querying.
+
+    SubSection = CodeCollab Platform
+    Role = Creator & Developer
+    Timeline = Nov 2020 - Mar 2021
+    Description = A real-time, browser-based collaborative code editor for remote technical interviews.
+    Highlights:
+        - Implemented real-time operational transformation (OT) using WebSockets and React.js.
+        - Containerized the application using Docker for seamless one-click deployments.
+
+Section: Education
+
+    SubSection = University of California, Berkeley
+    Degree = M.S. in Computer Science
+    Graduation = May 2018
+    Location = Berkeley, CA
+    Coursework = Distributed Systems, Advanced Algorithms, Cloud Computing architecture.
+
+    SubSection = University of Washington
+    Degree = B.S. in Software Engineering
+    Graduation = May 2016
+    Location = Seattle, WA
+    Highlights:
+        - Graduated Magna Cum Laude.
+        - President of the University Coding Club.
+
+Section: Skills
+
+    SubSection = Languages & Frameworks
+    Java = Expert
+    Python = Advanced
+    Go = Intermediate
+    TypeScript = Advanced
+    React.js = Advanced
+
+    SubSection = Cloud & DevOps
+    AWS = Certified Solutions Architect
+    Docker = Advanced
+    Kubernetes = Intermediate
+    CI/CD = Jenkins, GitHub Actions
+
+Section: Languages
+
+    SubSection = Spoken
+    English = Native Speaker
+    Spanish = Fluent (C2)
+    French = Conversational (B1)

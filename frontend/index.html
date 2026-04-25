@@ -297,11 +297,17 @@
     document.getElementById('fileInput').value = '';
   }
 
-  // Navigate to page 2 — pass filename via sessionStorage
+  // Navigate to page 2 — pass filename AND content via sessionStorage
   function goToTemplates() {
     if (!selectedFile) return;
-    sessionStorage.setItem('uploadedFile', selectedFile.name);
-    window.location.href = 'templates.html';
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      sessionStorage.setItem('uploadedFile', selectedFile.name);
+      sessionStorage.setItem('fileContent', e.target.result); // Save the actual data!
+      window.location.href = 'templates.html';
+    };
+    reader.readAsText(selectedFile);
   }
 
   function showToast(icon, msg) {
