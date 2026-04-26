@@ -34,7 +34,6 @@ public class Server {
     }
 
     // Handles requests to http://localhost:8080/api/generate
-    // Handles requests to http://localhost:8080/api/generate
     static class GenerateHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
@@ -42,11 +41,12 @@ public class Server {
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
             // 🔥 Added X-Output-Format to allowed headers
-            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, X-Template-Name, X-Output-Format");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers",
+                    "Content-Type, X-Template-Name, X-Output-Format");
 
             if ("OPTIONS".equals(exchange.getRequestMethod())) {
                 exchange.sendResponseHeaders(204, -1);
-                exchange.close(); 
+                exchange.close();
                 return;
             }
 
@@ -81,7 +81,7 @@ public class Server {
                     StringBuilder json = new StringBuilder();
                     json.append("{\n");
                     json.append("  \"latex\": \"").append(escapedLatex).append("\",\n");
-                    
+
                     if (pdfBase64 != null) {
                         json.append("  \"pdfBase64\": \"").append(pdfBase64).append("\",\n");
                     }
@@ -105,7 +105,7 @@ public class Server {
                     os.close();
 
                 } catch (Exception e) {
-                    e.printStackTrace(); 
+                    e.printStackTrace();
                     String errorMsg = "FATAL EXCEPTION: " + (e.getMessage() != null ? e.getMessage() : e.toString());
                     exchange.sendResponseHeaders(500, errorMsg.getBytes().length);
                     OutputStream os = exchange.getResponseBody();
@@ -128,26 +128,32 @@ public class Server {
                 Files.writeString(texFile.toPath(), latex);
 
                 ProcessBuilder pb = new ProcessBuilder(
-                        "pdflatex", 
+                        "pdflatex",
                         "-interaction=nonstopmode", // Don't hang waiting for user input
-                        "-halt-on-error",           // Stop immediately if LaTeX breaks
-                        "resume.tex"
-                );
+                        "-halt-on-error", // Stop immediately if LaTeX breaks
+                        "resume.tex");
                 pb.directory(tempDir);
+
+                // 🔥 THE FIX: Prevent Java Deadlock by redirecting the logs
+                pb.redirectErrorStream(true);
+                pb.inheritIO(); // Prints the LaTeX output directly to your Java terminal
+
                 Process process = pb.start();
                 int exitCode = process.waitFor();
 
                 if (exitCode != 0 || !pdfFile.exists()) {
-                    throw new RuntimeException("pdflatex compilation failed. LaTeX syntax error in generator.");
+                    throw new RuntimeException(
+                            "pdflatex compilation failed. Check the Java terminal for the exact LaTeX error.");
                 }
 
                 byte[] pdfBytes = Files.readAllBytes(pdfFile.toPath());
-                // Import java.util.Base64 at the top of your file!
                 return java.util.Base64.getEncoder().encodeToString(pdfBytes);
 
             } finally {
                 // Always clean up temp files to prevent disk leak
-                for (File f : tempDir.listFiles()) { f.delete(); }
+                for (File f : tempDir.listFiles()) {
+                    f.delete();
+                }
                 tempDir.delete();
             }
         }
