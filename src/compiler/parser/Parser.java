@@ -118,7 +118,7 @@ public class Parser {
             if (currentToken.getType() == Token.TokenType.NEWLINE) {
                 eat(Token.TokenType.NEWLINE);
             }
-        } 
+        }
         // Handle bullet list or newline
         else if (currentToken.getType() == Token.TokenType.NEWLINE) {
             eat(Token.TokenType.NEWLINE);
@@ -173,30 +173,32 @@ public class Parser {
         currentSection.subSections.add(currentSubSection);
     }
 
-//    // Independent parser test
-//    public static void main(String[] args) {
-//        System.out.println("Starting parser test");
-//        try {
-//            String fileContent = java.nio.file.Files.readString(java.nio.file.Path.of("Sample.rdl"));
-//            Lexer lexer = new Lexer(fileContent);
-//            java.util.List<Token> tokens = lexer.tokenize();
-//            
-//            System.out.println("Lexer tokens ready");
-//            
-//            Parser parser = new Parser(tokens);
-//            Resume myResume = parser.parseResume();
-//
-//            System.out.println("AST built successfully");
-//            System.out.println("Candidate Name: " + myResume.headerInfo.get("Name"));
-//            System.out.println("Total Sections: " + myResume.sections.size());
-//
-//            for (Section s : myResume.sections) {
-//                System.out.println(" -> Section: " + s.title + " (" + s.subSections.size() + " subsections)");
-//            }
-//            System.out.println("Parser test complete");
-//        } catch (java.io.IOException e) {
-//            e.printStackTrace();
-//            System.err.println("Error reading the file: " + e.getMessage());
-//        }
-//    }
+    // // Independent parser test
+    // public static void main(String[] args) {
+    // System.out.println("Starting parser test");
+    // try {
+    // String fileContent =
+    // java.nio.file.Files.readString(java.nio.file.Path.of("Sample.rdl"));
+    // Lexer lexer = new Lexer(fileContent);
+    // java.util.List<Token> tokens = lexer.tokenize();
+    //
+    // System.out.println("Lexer tokens ready");
+    //
+    // Parser parser = new Parser(tokens);
+    // Resume myResume = parser.parseResume();
+    //
+    // System.out.println("AST built successfully");
+    // System.out.println("Candidate Name: " + myResume.headerInfo.get("Name"));
+    // System.out.println("Total Sections: " + myResume.sections.size());
+    //
+    // for (Section s : myResume.sections) {
+    // System.out.println(" -> Section: " + s.title + " (" + s.subSections.size() +
+    // " subsections)");
+    // }
+    // System.out.println("Parser test complete");
+    // } catch (java.io.IOException e) {
+    // e.printStackTrace();
+    // System.err.println("Error reading the file: " + e.getMessage());
+    // }
+    // }
 }

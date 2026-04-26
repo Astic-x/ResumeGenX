@@ -2,9 +2,11 @@ import com.sun.net.httpserver.HttpServer;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpExchange;
 
+import java.util.Base64;
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.nio.file.Files;
+import java.util.List;
 
 import compiler.lexer.Lexer;
 import compiler.parser.Parser;
@@ -32,50 +34,121 @@ public class Server {
     }
 
     // Handles requests to http://localhost:8080/api/generate
+    // Handles requests to http://localhost:8080/api/generate
     static class GenerateHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            // Allow cross-origin requests
+            // 1. Global CORS Headers
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
+            exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
+            // 🔥 Added X-Output-Format to allowed headers
+            exchange.getResponseHeaders().add("Access-Control-Allow-Headers", "Content-Type, X-Template-Name, X-Output-Format");
+
+            if ("OPTIONS".equals(exchange.getRequestMethod())) {
+                exchange.sendResponseHeaders(204, -1);
+                exchange.close(); 
+                return;
+            }
 
             if ("POST".equals(exchange.getRequestMethod())) {
                 try {
-                    // 1. Read the .rdl file content from the HTTP request
                     InputStream is = exchange.getRequestBody();
                     String rdlContent = new String(is.readAllBytes());
-
-                    // 🔥 NEW: Grab the template name from the headers
                     String templateName = exchange.getRequestHeaders().getFirst("X-Template-Name");
+                    String outputFormat = exchange.getRequestHeaders().getFirst("X-Output-Format"); // 'latex' or 'pdf'
 
-                    // 2. Run the compiler pipeline!
                     Lexer lexer = new Lexer(rdlContent);
                     Parser parser = new Parser(lexer.tokenize());
                     Resume resume = parser.parseResume();
 
                     SemanticAnalyzer analyzer = new SemanticAnalyzer();
-                    analyzer.analyze(resume);
+                    List<String> warnings = analyzer.analyze(resume);
 
-                    // 🔥 NEW: Route through the Factory!
                     String latexCode = TemplateFactory.getGenerator(templateName).generate(resume);
+                    String pdfBase64 = null;
 
-                    // 3. Send the compiled LaTeX back to the browser
-                    byte[] response = latexCode.getBytes();
-                    exchange.getResponseHeaders().add("Content-Type", "text/plain");
-                    exchange.sendResponseHeaders(200, response.length);
+                    // 🔥 NEW: Compile to PDF if requested
+                    if ("pdf".equalsIgnoreCase(outputFormat)) {
+                        pdfBase64 = compilePdf(latexCode);
+                    }
+
+                    String escapedLatex = latexCode
+                            .replace("\\", "\\\\")
+                            .replace("\"", "\\\"")
+                            .replace("\n", "\\n")
+                            .replace("\r", "");
+
+                    StringBuilder json = new StringBuilder();
+                    json.append("{\n");
+                    json.append("  \"latex\": \"").append(escapedLatex).append("\",\n");
+                    
+                    if (pdfBase64 != null) {
+                        json.append("  \"pdfBase64\": \"").append(pdfBase64).append("\",\n");
+                    }
+
+                    json.append("  \"warnings\": [\n");
+                    for (int i = 0; i < warnings.size(); i++) {
+                        String escapedWarning = warnings.get(i).replace("\"", "\\\"");
+                        json.append("    \"").append(escapedWarning).append("\"");
+                        if (i < warnings.size() - 1)
+                            json.append(",");
+                        json.append("\n");
+                    }
+                    json.append("  ]\n");
+                    json.append("}");
+
+                    byte[] responseBytes = json.toString().getBytes("UTF-8");
+                    exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+                    exchange.sendResponseHeaders(200, responseBytes.length);
                     OutputStream os = exchange.getResponseBody();
-                    os.write(response);
+                    os.write(responseBytes);
                     os.close();
 
                 } catch (Exception e) {
-                    // Send compilation errors back to the UI
-                    String errorMsg = "COMPILER ERROR:\n" + e.getMessage();
+                    e.printStackTrace(); 
+                    String errorMsg = "FATAL EXCEPTION: " + (e.getMessage() != null ? e.getMessage() : e.toString());
                     exchange.sendResponseHeaders(500, errorMsg.getBytes().length);
                     OutputStream os = exchange.getResponseBody();
                     os.write(errorMsg.getBytes());
                     os.close();
                 }
             } else {
-                exchange.sendResponseHeaders(405, -1); // Method Not Allowed
+                exchange.sendResponseHeaders(405, -1);
+                exchange.close();
+            }
+        }
+
+        // 🔥 NEW: The PDF Compilation Engine
+        private String compilePdf(String latex) throws Exception {
+            File tempDir = Files.createTempDirectory("resumegenx_").toFile();
+            File texFile = new File(tempDir, "resume.tex");
+            File pdfFile = new File(tempDir, "resume.pdf");
+
+            try {
+                Files.writeString(texFile.toPath(), latex);
+
+                ProcessBuilder pb = new ProcessBuilder(
+                        "pdflatex", 
+                        "-interaction=nonstopmode", // Don't hang waiting for user input
+                        "-halt-on-error",           // Stop immediately if LaTeX breaks
+                        "resume.tex"
+                );
+                pb.directory(tempDir);
+                Process process = pb.start();
+                int exitCode = process.waitFor();
+
+                if (exitCode != 0 || !pdfFile.exists()) {
+                    throw new RuntimeException("pdflatex compilation failed. LaTeX syntax error in generator.");
+                }
+
+                byte[] pdfBytes = Files.readAllBytes(pdfFile.toPath());
+                // Import java.util.Base64 at the top of your file!
+                return java.util.Base64.getEncoder().encodeToString(pdfBytes);
+
+            } finally {
+                // Always clean up temp files to prevent disk leak
+                for (File f : tempDir.listFiles()) { f.delete(); }
+                tempDir.delete();
             }
         }
     }

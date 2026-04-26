@@ -8,15 +8,19 @@ public class SemanticAnalyzer {
     private List<String> errors = new ArrayList<>();
     private List<String> warnings = new ArrayList<>();
 
-    public void analyze(Resume resume) {
+    // 🔥 FIX 1: Changed return type from void to List<String> so Server.java can
+    // grab them
+    public List<String> analyze(Resume resume) {
         checkHeader(resume);
         checkSections(resume);
         checkMandatorySections(resume);
         printReport();
 
         if (!errors.isEmpty()) {
-            throw new RuntimeException("Semantic analysis failed due to errors.");
+            throw new RuntimeException(String.join(" | ", errors));
         }
+
+        return warnings;
     }
 
     private void checkHeader(Resume resume) {
@@ -37,7 +41,6 @@ public class SemanticAnalyzer {
             }
         }
 
-        // Validate GitHub handle or URL
         if (header.containsKey("GitHub")) {
             String github = header.get("GitHub").trim();
             if (!github.contains("github.com") && github.contains(" ")) {
@@ -48,13 +51,6 @@ public class SemanticAnalyzer {
         for (String key : header.keySet()) {
             if (header.get(key).trim().isEmpty()) {
                 warnings.add("Header field '" + key + "' is declared but empty.");
-            }
-        }
-
-        Set<String> seen = new HashSet<>();
-        for (String key : header.keySet()) {
-            if (!seen.add(key)) {
-                warnings.add("Duplicate header field detected: " + key);
             }
         }
     }
@@ -78,12 +74,11 @@ public class SemanticAnalyzer {
 
     private void validateSectionName(String title) {
         Set<String> validSections = Set.of(
-            "Education", "Experience", "Projects", 
-            "Skills", "Certifications", "Awards", "Publications"
-        );
+                "Education", "Experience", "Projects",
+                "Skills", "Certifications", "Awards", "Publications", "Languages", "Summary");
 
         boolean isValid = validSections.stream().anyMatch(title::equalsIgnoreCase);
-        
+
         if (!isValid) {
             warnings.add("Unconventional Section Name: '" + title + "'. Ensure this is intentional.");
         }
@@ -107,25 +102,20 @@ public class SemanticAnalyzer {
             warnings.add("SubSection '" + sub.title + "' in Section '" + sectionName + "' has no content.");
         }
 
-        Map<String, Set<String>> allowedKeys = getAllowedKeys();
-
         for (Map.Entry<String, String> entry : sub.keyValues.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue().trim();
 
             if (key.equalsIgnoreCase("Highlights")) {
                 if (sub.bullets.isEmpty()) {
-                    warnings.add("SubSection '" + sub.title + "' has a 'Highlights' key but no bullet points beneath it.");
+                    warnings.add(
+                            "SubSection '" + sub.title + "' has a 'Highlights' key but no bullet points beneath it.");
                 }
                 continue;
             }
 
-            if (allowedKeys.containsKey(sectionName)) {
-                boolean keyAllowed = allowedKeys.get(sectionName).stream().anyMatch(key::equalsIgnoreCase);
-                if (!keyAllowed) {
-                    warnings.add("Unrecognized key '" + key + "' in Section '" + sectionName + "'. The LaTeX Generator may ignore it.");
-                }
-            }
+            // 🔥 FIX 2: Removed the strict "allowedKeys" check here.
+            // Our templates now dynamically handle ANY custom key!
 
             if (value.isEmpty()) {
                 warnings.add("Empty value for key '" + key + "' in SubSection '" + sub.title + "'.");
@@ -135,32 +125,25 @@ public class SemanticAnalyzer {
                 warnings.add("Description is very brief in '" + sub.title + "'. Consider expanding.");
             }
 
-            // Validate date fields for 19xx, 20xx, or 'Present'
-            if (key.equalsIgnoreCase("StartDate") || key.equalsIgnoreCase("Timeline") || key.equalsIgnoreCase("ExpectedGraduation")) {
-                if (!value.isEmpty() && !value.matches(".*(?:19|20)\\d{2}.*") && !value.toLowerCase().contains("present")) {
-                    warnings.add("Unusual date format in SubSection '" + sub.title + "' (" + key + ": " + value + "). Expected a year (e.g., 2026).");
+            if (key.equalsIgnoreCase("StartDate") || key.equalsIgnoreCase("Timeline")
+                    || key.equalsIgnoreCase("ExpectedGraduation")) {
+                if (!value.isEmpty() && !value.matches(".*(?:19|20)\\d{2}.*")
+                        && !value.toLowerCase().contains("present")) {
+                    warnings.add("Unusual date format in SubSection '" + sub.title + "' (" + key + ": " + value
+                            + "). Expected a year (e.g., 2026).");
                 }
             }
         }
 
         for (String bullet : sub.bullets) {
-            String actualBulletText = bullet.contains(":") ? bullet.substring(bullet.indexOf(":") + 1).trim() : bullet.trim();
-            
+            String actualBulletText = bullet.contains(":") ? bullet.substring(bullet.indexOf(":") + 1).trim()
+                    : bullet.trim();
+
             if (actualBulletText.length() > 0 && actualBulletText.length() < 15) {
-                warnings.add("Bullet point in '" + sub.title + "' is too short (< 15 chars). Elaborate on your impact.");
+                warnings.add(
+                        "Bullet point in '" + sub.title + "' is too short (< 15 chars). Elaborate on your impact.");
             }
         }
-    }
-
-    private Map<String, Set<String>> getAllowedKeys() {
-        Map<String, Set<String>> allowedKeys = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        
-        allowedKeys.put("Education", Set.of("Degree", "Graduation", "ExpectedGraduation", "Coursework", "Grade", "GPA", "Location"));
-        allowedKeys.put("Experience", Set.of("Role", "StartDate", "Timeline", "Description", "Location", "Highlights"));
-        allowedKeys.put("Projects", Set.of("Role", "TechStack", "Timeline", "Description", "Highlights", "Location"));
-        allowedKeys.put("Skills", Set.of("Languages", "Frameworks", "Tools", "Technologies"));
-
-        return allowedKeys;
     }
 
     private void checkMandatorySections(Resume resume) {
@@ -171,7 +154,7 @@ public class SemanticAnalyzer {
         if (!hasEducation) {
             warnings.add("Missing 'Education' section. This is highly recommended for students/recent grads.");
         }
-        
+
         if (!hasExperience && !hasProjects) {
             warnings.add("Resume lacks both 'Experience' and 'Projects' sections. You need to show your work!");
         }
