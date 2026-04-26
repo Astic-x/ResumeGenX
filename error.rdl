@@ -1,0 +1,16 @@
+Title = Junior Developer
+Email = not-a-valid-email.com
+Phone = +1 (555) 000-0000
+GitHub = github.com / space in url
+
+Section: Unconventional Section
+
+    SubSection = Empty SubSection Test
+    
+    SubSection = Bad Formatting Job
+    Role = Intern
+    StartDate = A few years ago
+    Description = Too short.
+    Highlights:
+
+Section: Empty Section

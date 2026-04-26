@@ -4,7 +4,6 @@ import compiler.parser.Parser;
 import compiler.semantic.SemanticAnalyzer;
 import compiler.ast.Resume;
 import compiler.ast.Section;
-import compiler.generator.LatexGenerator;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

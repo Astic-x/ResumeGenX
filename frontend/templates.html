@@ -306,6 +306,67 @@
       font-size: 14px;
       color: #333;
     }
+
+    /* Terminal Console UI */
+    .terminal-console {
+      display: none;
+      /* Hidden by default */
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      margin-top: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .term-header {
+      background: #161b22;
+      padding: 8px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: #8b949e;
+      border-bottom: 1px solid #30363d;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .term-body {
+      padding: 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.5;
+      color: #c9d1d9;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .term-warn {
+      color: #d29922;
+      margin-bottom: 6px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .term-success {
+      color: #3fb950;
+      margin-bottom: 6px;
+      display: flex;
+      gap: 8px;
+    }
   </style>
 </head>
 
@@ -313,7 +374,6 @@
 
   <div class="page-wrap">
 
-    <!-- NAV -->
     <nav>
       <a class="logo" href="index.html">
         <div class="logo-icon">R</div>
@@ -328,7 +388,6 @@
       </div>
     </nav>
 
-    <!-- CONTENT -->
     <div class="page2-content">
 
       <div class="page2-header">
@@ -337,7 +396,6 @@
         <p>Select the layout that best represents you. All templates support PDF and LaTeX export.</p>
       </div>
 
-      <!-- Filter bar -->
       <div class="filter-bar">
         <button class="filter-btn active" onclick="filterTemplates('all',this)">All</button>
         <button class="filter-btn" onclick="filterTemplates('minimal',this)">Minimal</button>
@@ -346,7 +404,6 @@
         <button class="filter-btn" onclick="filterTemplates('creative',this)">Creative</button>
       </div>
 
-      <!-- Template grid -->
       <div class="template-gallery">
 
         <div class="template-card" data-tags="minimal" onclick="selectTemplate('Clean Minimal', this)">
@@ -379,9 +436,7 @@
           <h3>Creative Bold</h3>
         </div>
 
-      </div><!-- end template-grid -->
-
-      <!-- Generate Bar -->
+      </div>
       <div class="generate-bar">
         <div class="selected-info">
           <div class="label">Selected Template</div>
@@ -397,10 +452,16 @@
         </div>
       </div>
 
-    </div><!-- end page2-content -->
-  </div><!-- end page-wrap -->
+      <div class="terminal-console" id="terminalConsole">
+        <div class="term-header">
+          <span style="color: #ff7b72;">>_</span> Semantic Analyzer Output
+        </div>
+        <div class="term-body" id="termBody">
+        </div>
+      </div>
 
-  <!-- Modal -->
+    </div>
+  </div>
   <div class="modal-overlay" id="modal">
     <div class="modal">
       <div class="modal-icon" id="modalIcon">✦</div>
@@ -414,7 +475,6 @@
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast">
     <span id="toastIcon">✓</span>
     <span id="toastMsg">File ready</span>
@@ -431,8 +491,6 @@
         c.style.display = (tag === 'all' || c.dataset.tags.includes(tag)) ? '' : 'none';
       });
     }
-
-
 
     function selectTemplate(templateName, element) {
       selectedTemplate = templateName;
@@ -464,45 +522,90 @@
         return;
       }
 
-      // Lock UI while compiling
       document.getElementById('btnPdf').disabled = true;
       document.getElementById('btnTex').disabled = true;
       document.body.style.cursor = 'wait';
 
+      const terminal = document.getElementById('terminalConsole');
+      const termBody = document.getElementById('termBody');
+      terminal.style.display = 'none';
+      termBody.innerHTML = '';
+
       try {
-        // 1. Send data to Java Server
         const response = await fetch('http://localhost:8080/api/generate', {
           method: 'POST',
           headers: {
-            'X-Template-Name': selectedTemplate // Sends the UI selection to Java
+            'X-Template-Name': selectedTemplate,
+            'X-Output-Format': type // 🔥 Tells Java whether to run pdflatex or skip it
           },
           body: fileContent
         });
 
         if (!response.ok) {
-          throw new Error(await response.text()); // Catch SemanticAnalyzer errors
+          throw new Error(await response.text());
         }
 
-        const latexCode = await response.text();
+        const data = await response.json();
+        const warnings = data.warnings || [];
 
-        // 2. Force browser to download the file
-        const blob = new Blob([latexCode], { type: 'text/plain' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `ResumeGenX_${type.toUpperCase()}.tex`; // Both download .tex for now
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
+        // 🔥 Handle the Download Logic based on the requested format
+        if (type === 'pdf' && data.pdfBase64) {
+          // Decode Base64 string into a binary ArrayBuffer
+          const byteCharacters = atob(data.pdfBase64);
+          const byteNumbers = new Array(byteCharacters.length);
+          for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+          }
+          const byteArray = new Uint8Array(byteNumbers);
 
-        // 3. Show Success Modal
+          // Create a blob representing the PDF file
+          const blob = new Blob([byteArray], { type: 'application/pdf' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ResumeGenX_${selectedTemplate.replace(/\s+/g, '')}.pdf`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url); // Clean up memory
+        } else {
+          // Standard LaTeX text download
+          const blob = new Blob([data.latex], { type: 'text/plain' });
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `ResumeGenX_${selectedTemplate.replace(/\s+/g, '')}.tex`;
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          window.URL.revokeObjectURL(url);
+        }
+
         document.getElementById('modalIcon').textContent = '✓';
         document.getElementById('modalTitle').textContent = 'Generation Complete';
-        document.getElementById('modalMsg').textContent = `Successfully compiled ${uploadedFile}. Your download should begin automatically.`;
+        document.getElementById('modalMsg').textContent = `Successfully compiled ${uploadedFile}.`;
         document.getElementById('modal').classList.add('show');
 
+        if (warnings.length > 0) {
+          terminal.style.display = 'block';
+          let html = `<div class="term-success"><span>[OK]</span> AST Built Successfully.</div>`;
+          warnings.forEach(warn => {
+            html += `<div class="term-warn"><span>[WARN]</span> ${warn}</div>`;
+          });
+          termBody.innerHTML = html;
+        }
+
       } catch (err) {
-        alert(err.message); // Show the exact Java error to the user
+        terminal.style.display = 'block';
+        let rawError = err.message.replace("FATAL EXCEPTION: ", "");
+        let errorLines = rawError.split("|");
+
+        let html = '';
+        errorLines.forEach(e => {
+          html += `<div style="color: #f85149; margin-bottom: 6px; display: flex; gap: 8px;"><span>[FATAL]</span> ${e.trim()}</div>`;
+        });
+
+        termBody.innerHTML = html;
       } finally {
         document.getElementById('btnPdf').disabled = false;
         document.getElementById('btnTex').disabled = false;
