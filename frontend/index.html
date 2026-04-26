@@ -84,6 +84,7 @@
 
   .btn-primary { margin-top: 20px; width: 100%; }
 
+
   /* Guide Panel */
   .guide-panel {
     background: var(--card-sheen);
@@ -113,12 +114,82 @@
     border: 1px solid rgba(64,86,161,0.35);
   }
   .guide-body { padding: 22px; max-height: calc(100vh - 200px); overflow-y: auto; }
-  .guide-section { margin-bottom: 24px; }
-  .guide-section:last-child { margin-bottom: 0; }
-  .guide-section h4 {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.62rem; color: var(--cobalt-h);
-    text-transform: uppercase; letter-spacing: 1.8px; margin-bottom: 11px; font-weight: 600;
+
+  .guide-tabs {
+    display: flex; gap: 0;
+    border: 1px solid var(--border2);
+    border-radius: 7px; overflow: hidden;
+    margin-bottom: 18px; width: fit-content;
   }
+  .guide-tab {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.65rem; font-weight: 600;
+    letter-spacing: 0.04em; padding: 6px 14px;
+    cursor: pointer; border: none; background: transparent;
+    color: var(--muted2); transition: background .15s, color .15s;
+  }
+  .guide-tab.active { background: rgba(64,86,161,0.18); color: var(--cobalt-h); }
+  .guide-tab:not(:last-child) { border-right: 1px solid var(--border2); }
+  .guide-panel-content { display: none; }
+  .guide-panel-content.active { display: block; }
+
+  .gsection { margin-bottom: 20px; }
+  .gsection:last-child { margin-bottom: 0; }
+  .gsection-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.6rem;
+    color: var(--cobalt-h); text-transform: uppercase;
+    letter-spacing: 1.8px; margin-bottom: 10px; font-weight: 600;
+  }
+  .grule { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 9px; }
+  .grule-arrow { font-size: 0.7rem; color: var(--muted2); min-width: 14px; padding-top: 2px; }
+  .grule-text { font-size: 0.78rem; color: var(--muted2); line-height: 1.6; }
+  .grule-text code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    color: var(--silver-hi); background: rgba(154,160,190,0.08);
+    padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border2);
+  }
+
+  .gcode {
+    background: rgba(10,12,16,0.7); border: 1px solid var(--border2);
+    border-radius: 8px; padding: 13px 15px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem;
+    line-height: 1.95; overflow-x: auto; margin-bottom: 0;
+  }
+  .gcode .gc { color: var(--muted2); }
+  .gcode .gk { color: var(--cobalt-h); }
+  .gcode .go { color: var(--muted2); }
+  .gcode .gv { color: var(--silver-hi); }
+  .gcode .gb { color: #5dbb8a; }
+  .gcode .gi { color: rgba(241,180,60,0.75); }
+
+  .ginfo {
+    display: flex; gap: 9px; padding: 9px 12px;
+    border-radius: 7px; background: rgba(64,86,161,0.1);
+    border: 1px solid rgba(64,86,161,0.25); margin-bottom: 12px;
+    align-items: flex-start;
+  }
+  .ginfo-icon { font-size: 0.75rem; color: var(--cobalt-h); padding-top: 1px; min-width: 12px; }
+  .ginfo-text { font-size: 0.78rem; color: var(--muted2); line-height: 1.55; }
+  .ginfo-text code { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--cobalt-h); }
+
+  .gwarn {
+    display: flex; gap: 9px; padding: 9px 12px;
+    border-radius: 7px; background: rgba(241,150,30,0.08);
+    border: 1px solid rgba(241,150,30,0.25); margin-bottom: 8px;
+    align-items: flex-start;
+  }
+  .gwarn-icon { font-size: 0.75rem; color: rgba(241,180,60,0.85); padding-top: 1px; min-width: 12px; }
+  .gwarn-text { font-size: 0.78rem; color: var(--muted2); line-height: 1.55; }
+  .gwarn-text code { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; }
+
+  .gcheck { display: flex; gap: 9px; align-items: flex-start; margin-bottom: 7px; }
+  .gcheck-icon { font-size: 0.7rem; color: #5dbb8a; min-width: 12px; padding-top: 2px; }
+  .gcheck-text { font-size: 0.78rem; color: var(--muted2); line-height: 1.55; }
+  .gcheck-text code {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.7rem;
+    color: var(--silver-hi); background: rgba(154,160,190,0.08);
+    padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border2);
+  }
+  .gdivider { height: 1px; background: var(--border2); margin: 16px 0; }
 
   @media (max-width: 860px) {
     .hero { grid-template-columns: 1fr; padding: 32px 22px; }
@@ -188,57 +259,149 @@
       </button>
     </div>
 
-    <!-- RIGHT Panel -->
-    <div class="guide-panel">
-      <div class="guide-header">
-        <div class="guide-header-icon">⌗</div>
-        <h2>Input File Guide</h2>
-        <span class="guide-badge">DOCS</span>
-      </div>
-      <div class="guide-body">
+    <!-- RIGHT: Guide Panel -->
+   <div class="guide-panel">
+  <div class="guide-header">
+    <div class="guide-header-icon">⌗</div>
+    <h2>Input File Guide</h2>
+    <span class="guide-badge">DOCS</span>
+  </div>
+  <div class="guide-body">
 
-        <div class="guide-section">
-          <h4>About the .rdl format</h4>
-          <div class="info-box">
-            <span>ℹ</span>
-            <span><strong style="color:var(--silver-hi)">.rdl</strong> (Resume Data Layout) is ResumeGenX's custom plain-text format — structured like a simple key-value file, readable in any text editor.</span>
-          </div>
-          <div class="guide-step"><div class="step-num">01</div><div class="step-text">Create a plain text file and save it with the <strong>.rdl</strong> extension — e.g. <span class="mono">my_resume.rdl</span></div></div>
-          <div class="guide-step"><div class="step-num">02</div><div class="step-text">Write your data using <strong>KEY: value</strong> pairs. Separate sections with a blank line.</div></div>
-          <div class="guide-step"><div class="step-num">03</div><div class="step-text">Multi-value fields use a <strong>pipe separator</strong> — <span class="mono">val1 | val2 | val3</span></div></div>
-        </div>
-
-        <div class="guide-section">
-          <h4>File structure example</h4>
-          <div class="code-sample">
-<span class="c"># Personal Info</span><br/>
-<span class="k">NAME</span>: <span class="v">John Doe</span><br/>
-<span class="k">EMAIL</span>: <span class="v">john@email.com</span><br/>
-<span class="k">PHONE</span>: <span class="v">+91 99999 99999</span><br/><br/>
-<span class="c"># Skills</span><br/>
-<span class="k">SKILLS</span>: <span class="v">Python | React | Node.js</span><br/><br/>
-<span class="c"># Education</span><br/>
-<span class="k">EDU_DEGREE</span>: <span class="v">B.Tech Computer Science</span><br/>
-<span class="k">EDU_YEAR</span>: <span class="v">2024</span><br/><br/>
-<span class="c"># Experience</span><br/>
-<span class="k">EXP_TITLE</span>: <span class="v">Software Intern</span><br/>
-<span class="k">EXP_COMPANY</span>: <span class="v">Acme Corp</span><br/>
-<span class="k">EXP_PERIOD</span>: <span class="v">2023-05 to 2023-08</span>
-          </div>
-        </div>
-
-        <div class="guide-section">
-          <h4>Common mistakes to avoid</h4>
-          <div class="warn-box"><span>⚠</span><span>Do <strong>not</strong> rename a <span class="mono">.txt</span> to <span class="mono">.rdl</span> — the parser validates internal structure, not just the extension.</span></div>
-          <div class="warn-box"><span>⚠</span><span>Avoid <strong>&lt; &gt; &amp; \ " '</strong> inside values — these break LaTeX rendering on export.</span></div>
-          <div class="guide-step"><div class="step-num">✓</div><div class="step-text">Keys must be <strong>UPPERCASE</strong> with underscores — e.g. <span class="mono">EXP_TITLE</span></div></div>
-          <div class="guide-step"><div class="step-num">✓</div><div class="step-text">Date format: <strong>YYYY-MM</strong> — e.g. <span class="mono">2023-06</span></div></div>
-          <div class="guide-step"><div class="step-num">✓</div><div class="step-text">Sections separated by <strong>exactly one blank line</strong>.</div></div>
-          <div class="guide-step"><div class="step-num">✓</div><div class="step-text">Save as <strong>UTF-8</strong> encoding. Max size: <strong>5 MB</strong>.</div></div>
-        </div>
-
-      </div>
+    <div class="guide-tabs">
+      <button class="guide-tab active" onclick="switchGuideTab('rules', this)">Formatting rules</button>
+      <button class="guide-tab" onclick="switchGuideTab('example', this)">Full example</button>
     </div>
+
+    <!-- ── RULES PANEL ── -->
+    <div class="guide-panel-content active" id="gpanel-rules">
+
+      <div class="gsection">
+        <div class="ginfo">
+          <span class="ginfo-icon">i</span>
+          <span class="ginfo-text">An <code>.rdl</code> file is a plain-text resume data file. Write it in any text editor — no coding knowledge needed. Follow the 5 rules below and the parser handles the rest.</span>
+        </div>
+      </div>
+
+      <div class="gsection">
+        <div class="gsection-label">Rule 1 — Assigning a value</div>
+        <div class="grule"><span class="grule-arrow">→</span><span class="grule-text">Use <code>=</code> or <code>:</code> to assign — both work identically.</span></div>
+        <div class="gcode">
+          <span class="gk">Name</span> <span class="go">=</span> <span class="gv">John Doe</span><br>
+          <span class="gk">Email</span> <span class="go">:</span> <span class="gv">john@email.com</span>
+        </div>
+      </div>
+
+      <div class="gsection">
+        <div class="gsection-label">Rule 2 — Resume sections</div>
+        <div class="grule"><span class="grule-arrow">→</span><span class="grule-text">Use <code>Section</code> to start a group and <code>SubSection</code> for each entry inside it. Valid section names: <code>Experience</code>, <code>Education</code>, <code>Projects</code>, <code>Skills</code>.</span></div>
+        <div class="gcode">
+          <span class="gk">Section</span><span class="go">:</span> <span class="gv">Experience</span><br>
+          <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">SubSection</span> <span class="go">=</span> <span class="gv">Google</span>
+        </div>
+      </div>
+
+      <div class="gsection">
+        <div class="gsection-label">Rule 3 — No quotes needed</div>
+        <div class="grule"><span class="grule-arrow">→</span><span class="grule-text">Type descriptions naturally. Commas, semicolons, and punctuation are treated as plain text — never as syntax.</span></div>
+        <div class="gcode">
+          <span class="gk">Summary</span> <span class="go">=</span> <span class="gv">Developer specializing in compilers, networking, and databases.</span>
+        </div>
+      </div>
+
+      <div class="gsection">
+        <div class="gsection-label">Rule 4 — Wrapping long text</div>
+        <div class="grule"><span class="grule-arrow">→</span><span class="grule-text">Press <code>Enter</code> and indent the next line with <code>Tab</code> or spaces — the parser joins them into one paragraph automatically.</span></div>
+        <div class="gcode">
+          <span class="gk">Description</span> <span class="go">=</span> <span class="gv">Built a fast, secure payment system.</span><br>
+          <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gv">Reduced latency by 40% using caching.</span><br>
+          <span class="gc">→ Renders as one paragraph in the PDF</span>
+        </div>
+      </div>
+
+      <div class="gsection">
+        <div class="gsection-label">Rule 5 — Bullet point lists</div>
+        <div class="grule"><span class="grule-arrow">→</span><span class="grule-text">New line + indent + <code>-</code> creates a bullet. Use these for achievements and responsibilities.</span></div>
+        <div class="gcode">
+          <span class="gk">Highlights</span><span class="go">:</span><br>
+          <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gb">-</span> <span class="gv">Led a team of 6 engineers across 3 time zones.</span><br>
+          <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gb">-</span> <span class="gv">Shipped 4 major features ahead of schedule.</span>
+        </div>
+      </div>
+
+      <div class="gdivider"></div>
+
+      <div class="gsection">
+        <div class="gsection-label">Before you upload</div>
+        <div class="gwarn"><span class="gwarn-icon">!</span><span class="gwarn-text">Avoid <code>&lt; &gt; &amp; \ " '</code> inside values — these break PDF rendering on export.</span></div>
+        <div class="gcheck"><span class="gcheck-icon">✓</span><span class="gcheck-text">Dates must use <code>YYYY-MM</code> format — e.g. <code>2023-06</code>.</span></div>
+        <div class="gcheck"><span class="gcheck-icon">✓</span><span class="gcheck-text">Save the file as <code>UTF-8</code> encoding. Max size: <strong>5 MB</strong>.</span></div>
+        <div class="gcheck"><span class="gcheck-icon">✓</span><span class="gcheck-text">File must be saved with the <code>.rdl</code> extension.</span></div>
+      </div>
+
+    </div><!-- end rules panel -->
+
+    <!-- ── EXAMPLE PANEL ── -->
+    <div class="guide-panel-content" id="gpanel-example">
+
+      <div class="gsection">
+        <div class="ginfo">
+          <span class="ginfo-icon">i</span>
+          <span class="ginfo-text">A complete <code>.rdl</code> resume file. Copy this structure, fill in your own details, save as <code>my_resume.rdl</code>, and upload.</span>
+        </div>
+      </div>
+
+      <div class="gcode" style="line-height:1.85">
+        <span class="gc"># ── Personal Info ───────────────</span><br>
+        <span class="gk">Name</span>    <span class="go">=</span> <span class="gv">Jane Smith</span><br>
+        <span class="gk">Email</span>   <span class="go">=</span> <span class="gv">jane@email.com</span><br>
+        <span class="gk">Phone</span>   <span class="go">=</span> <span class="gv">+91-XXXXXXXXXX</span><br>
+        <span class="gk">LinkedIn</span> <span class="go">=</span> <span class="gv">linkedin.com/in/janesmith</span><br>
+        <span class="gk">GitHub</span>  <span class="go">=</span> <span class="gv">github.com/janesmith</span><br>
+        <span class="gk">Summary</span> <span class="go">=</span> <span class="gv">Full-stack developer with 3 years of experience</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gv">building scalable web applications.</span><br><br>
+
+        <span class="gc"># ── Skills ──────────────────────</span><br>
+        <span class="gk">Section</span><span class="go">:</span> <span class="gv">Skills</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Languages</span>  <span class="go">=</span> <span class="gv">Java, Python, TypeScript</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Frameworks</span> <span class="go">=</span> <span class="gv">Spring Boot, React, Node.js</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Tools</span>      <span class="go">=</span> <span class="gv">Git, Docker, PostgreSQL</span><br><br>
+
+        <span class="gc"># ── Experience ──────────────────</span><br>
+        <span class="gk">Section</span><span class="go">:</span> <span class="gv">Experience</span><br><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">SubSection</span> <span class="go">=</span> <span class="gv">Acme Corp</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Role</span>       <span class="go">=</span> <span class="gv">Software Engineer</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Period</span>     <span class="go">=</span> <span class="gv">2022-07 to 2024-12</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Highlights</span><span class="go">:</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gb">-</span> <span class="gv">Redesigned the billing pipeline, cutting failures by 30%.</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gb">-</span> <span class="gv">Mentored 2 junior developers and led weekly code reviews.</span><br><br>
+
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">SubSection</span> <span class="go">=</span> <span class="gv">StartupXYZ</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Role</span>       <span class="go">=</span> <span class="gv">Backend Intern</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Period</span>     <span class="go">=</span> <span class="gv">2022-01 to 2022-06</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Highlights</span><span class="go">:</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gb">-</span> <span class="gv">Built REST APIs consumed by 10k daily active users.</span><br><br>
+
+        <span class="gc"># ── Education ───────────────────</span><br>
+        <span class="gk">Section</span><span class="go">:</span> <span class="gv">Education</span><br><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">SubSection</span> <span class="go">=</span> <span class="gv">State University</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Degree</span>     <span class="go">=</span> <span class="gv">B.Tech Computer Science</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Period</span>     <span class="go">=</span> <span class="gv">2018-08 to 2022-05</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">GPA</span>        <span class="go">=</span> <span class="gv">8.7 / 10</span><br><br>
+
+        <span class="gc"># ── Projects ────────────────────</span><br>
+        <span class="gk">Section</span><span class="go">:</span> <span class="gv">Projects</span><br><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">SubSection</span>   <span class="go">=</span> <span class="gv">ResumeGenX</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Description</span>  <span class="go">=</span> <span class="gv">A compiler-based resume generator that parses</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gv">.rdl files and exports polished PDFs via LaTeX.</span><br>
+        <span class="gi">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="gk">Stack</span>        <span class="go">=</span> <span class="gv">Java, LaTeX, React</span>
+      </div>
+
+    </div><!-- end example panel -->
+
+  </div><!-- end guide-body -->
+</div><!-- end guide-panel --><!-- end guide-panel -->
+
   </div><!-- end hero -->
 
 </div><!-- end page-wrap -->
@@ -297,14 +460,12 @@
     document.getElementById('fileInput').value = '';
   }
 
-  // Navigate to page 2 — pass filename AND content via sessionStorage
   function goToTemplates() {
     if (!selectedFile) return;
-    
     const reader = new FileReader();
     reader.onload = function(e) {
       sessionStorage.setItem('uploadedFile', selectedFile.name);
-      sessionStorage.setItem('fileContent', e.target.result); // Save the actual data!
+      sessionStorage.setItem('fileContent', e.target.result);
       window.location.href = 'templates.html';
     };
     reader.readAsText(selectedFile);
@@ -317,6 +478,13 @@
     t.classList.add('show');
     setTimeout(() => t.classList.remove('show'), 3000);
   }
+
+ function switchGuideTab(id, btn) {
+  document.querySelectorAll('.guide-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.guide-panel-content').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('gpanel-' + id).classList.add('active');
+}
 </script>
 </body>
 </html>
