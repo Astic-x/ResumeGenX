@@ -82,7 +82,7 @@ public class MinimalGenerator implements ResumeGenerator {
         latex.append("  parsep=0pt\n");
         latex.append("}\n\n");
 
-        // 🔥 FIX: Significantly reduced spacing around the section headers
+        // Significantly reduced spacing around the section headers
         latex.append("\\newcommand{\\cvsection}[1]{%\n");
         latex.append("  \\vspace{6pt}\n");
         latex.append("  \\noindent{\\Large\\bfseries\\uppercase{#1}}\\par\n");
@@ -91,7 +91,7 @@ public class MinimalGenerator implements ResumeGenerator {
 
         latex.append("\\begin{document}\n\n");
 
-        // ================= HEADER =================
+        // HEADER
         Set<String> consumedHeaderKeys = new HashSet<>();
 
         String name = consumeKey(resume.headerInfo, consumedHeaderKeys, "name");
@@ -117,14 +117,14 @@ public class MinimalGenerator implements ResumeGenerator {
         if (!contactInfo.isEmpty()) {
             latex.append("  ").append(String.join(" \\quad|\\quad ", contactInfo)).append("\n");
         }
-        // 🔥 FIX: Tighter header spacing
+        //Tighter header spacing
         latex.append("\\end{center}\n\\vspace{2pt}\n\n");
 
         if (!about.isEmpty()) {
             latex.append(about).append("\\par\\vspace{4pt}\n");
         }
 
-        // ================= BODY =================
+        // BODY
         for (Section section : resume.sections) {
             latex.append("\\cvsection{").append(escapeLatex(section.title)).append("}\n");
 
@@ -135,7 +135,7 @@ public class MinimalGenerator implements ResumeGenerator {
                         latex.append("\\textbf{").append(escapeLatex(sub.title)).append("}\\par\\vspace{2pt}\n");
                     }
 
-                    // 🔥 FIX: No more string joining. Prints every key strictly on a new line.
+                    // No more string joining. Prints every key strictly on a new line.
                     for (String key : sub.keyValues.keySet()) {
                         latex.append("\\textbf{").append(escapeLatex(key)).append("}: ")
                                 .append(escapeLatex(sub.keyValues.get(key))).append("\\par\\vspace{2pt}\n");
@@ -190,7 +190,7 @@ public class MinimalGenerator implements ResumeGenerator {
                     }
                     latex.append("\\end{itemize}\n");
                 }
-                // 🔥 FIX: Tighter spacing between subsections
+                //Tighter spacing between subsections
                 latex.append("\\vspace{6pt}\n\n");
             }
         }
