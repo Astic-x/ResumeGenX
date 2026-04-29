@@ -62,7 +62,7 @@ public class MinimalGenerator implements ResumeGenerator {
     public String generate(Resume resume) {
         StringBuilder latex = new StringBuilder();
 
-        // ================= PREAMBLE =================
+        // Document preamble
         latex.append("\\documentclass[letterpaper, 11pt]{article}\n\n");
         latex.append("\\usepackage[top=0.6in, bottom=0.6in, left=0.6in, right=0.6in]{geometry}\n");
         latex.append("\\usepackage[T1]{fontenc}\n");
@@ -82,7 +82,7 @@ public class MinimalGenerator implements ResumeGenerator {
         latex.append("  parsep=0pt\n");
         latex.append("}\n\n");
 
-        // Significantly reduced spacing around the section headers
+        // Adjust section header spacing
         latex.append("\\newcommand{\\cvsection}[1]{%\n");
         latex.append("  \\vspace{6pt}\n");
         latex.append("  \\noindent{\\Large\\bfseries\\uppercase{#1}}\\par\n");
@@ -91,7 +91,7 @@ public class MinimalGenerator implements ResumeGenerator {
 
         latex.append("\\begin{document}\n\n");
 
-        // HEADER
+        // Document header
         Set<String> consumedHeaderKeys = new HashSet<>();
 
         String name = consumeKey(resume.headerInfo, consumedHeaderKeys, "name");
@@ -117,25 +117,25 @@ public class MinimalGenerator implements ResumeGenerator {
         if (!contactInfo.isEmpty()) {
             latex.append("  ").append(String.join(" \\quad|\\quad ", contactInfo)).append("\n");
         }
-        //Tighter header spacing
+        // Compact header spacing
         latex.append("\\end{center}\n\\vspace{2pt}\n\n");
 
         if (!about.isEmpty()) {
             latex.append(about).append("\\par\\vspace{4pt}\n");
         }
 
-        // BODY
+        // Document body
         for (Section section : resume.sections) {
             latex.append("\\cvsection{").append(escapeLatex(section.title)).append("}\n");
 
-            // SKILLS / LANGUAGES / TECH HANDLER
+            // Format skills and tech sections
             if (sectionIs(section.title, "skill", "language", "tech", "tool", "arsenal")) {
                 for (SubSection sub : section.subSections) {
                     if (sub.title != null && !sub.title.isEmpty()) {
                         latex.append("\\textbf{").append(escapeLatex(sub.title)).append("}\\par\\vspace{2pt}\n");
                     }
 
-                    // No more string joining. Prints every key strictly on a new line.
+                    // Print keys on separate lines
                     for (String key : sub.keyValues.keySet()) {
                         latex.append("\\textbf{").append(escapeLatex(key)).append("}: ")
                                 .append(escapeLatex(sub.keyValues.get(key))).append("\\par\\vspace{2pt}\n");
@@ -153,7 +153,7 @@ public class MinimalGenerator implements ResumeGenerator {
                 continue;
             }
 
-            // STANDARD SECTIONS (Experience, Education, Projects, etc.)
+            // Format standard sections
             for (SubSection sub : section.subSections) {
                 Set<String> consumedSubKeys = new HashSet<>();
 
@@ -190,7 +190,7 @@ public class MinimalGenerator implements ResumeGenerator {
                     }
                     latex.append("\\end{itemize}\n");
                 }
-                //Tighter spacing between subsections
+                // Compact subsection spacing
                 latex.append("\\vspace{6pt}\n\n");
             }
         }

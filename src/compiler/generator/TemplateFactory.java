@@ -9,7 +9,7 @@ public class TemplateFactory {
         switch (templateName.toLowerCase()) {
             case "clean minimal":
             case "compact grid":
-                return new MinimalGenerator(); // Uses your existing Elastic Engine
+                return new MinimalGenerator(); // Use MinimalGenerator
 
             case "modern split":
                 return new ModernSplitGenerator();
@@ -22,7 +22,7 @@ public class TemplateFactory {
             case "tech focused":
                 return new AltaCVGenerator();
             default:
-                return new MinimalGenerator(); // Fallback
+                return new MinimalGenerator(); // Default generator
         }
     }
 }

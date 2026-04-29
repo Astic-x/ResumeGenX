@@ -8,7 +8,7 @@ import java.util.Set;
 public class AltaCVGenerator implements ResumeGenerator {
 
     
-    // Helpers
+    // Utility methods
     private static String escapeLatex(String text) {
         if (text == null) return "";
         text = text.trim();
@@ -36,12 +36,12 @@ public class AltaCVGenerator implements ResumeGenerator {
         }
         return false;
     }
-    // Entry point
+    // Main entry point
     @Override
     public String generate(Resume resume) {
         StringBuilder latex = new StringBuilder();
 
-        // Sort sections into Left vs Right column
+        // Separate sections by column
         List<Section> leftSections = new ArrayList<>();
         List<Section> rightSections = new ArrayList<>();
         
@@ -69,7 +69,7 @@ public class AltaCVGenerator implements ResumeGenerator {
         
         return latex.toString();
     }
-    // Preamble
+    // Setup LaTeX preamble
 
 
     private void buildPreamble(StringBuilder b) {
@@ -87,7 +87,7 @@ public class AltaCVGenerator implements ResumeGenerator {
         b.append("\\usepackage{graphicx}\n");
         b.append("\\usepackage[hidelinks]{hyperref}\n\n");
 
-        // AltaCV Colors
+        // Define template colors
         b.append("\\definecolor{HeaderDark}{HTML}{454545}\n");
         b.append("\\definecolor{SidebarGray}{HTML}{E8EDF2}\n");
         b.append("\\definecolor{AccentCyan}{HTML}{4DB6AC}\n");
@@ -97,17 +97,17 @@ public class AltaCVGenerator implements ResumeGenerator {
         b.append("\\pagestyle{empty}\n");
         b.append("\\setlength{\\parindent}{0pt}\n\n");
 
-        // Background color for the left column via paracol
+        // Set left column background color
         b.append("\\backgroundcolor{c}[0]{SidebarGray}\n\n");
 
-        // Right Column Section Headers
+        // Define right column header style
         b.append("\\newcommand{\\cvsection}[1]{%\n");
         b.append("  \\vspace{16pt}\n");
         b.append("  {\\Large\\bfseries\\color{TextDark}\\uppercase{#1}}\\par\n");
         b.append("  \\vspace{2pt}{\\color{TextLight}\\hrulefill}\\par\\vspace{8pt}\n");
         b.append("}\n\n");
 
-        // Left Column Section Headers (Cyan Box)
+        // Define left column header style
         b.append("\\newcommand{\\sidebarsection}[1]{%\n");
         b.append("  \\vspace{12pt}\n");
         b.append("  \\colorbox{AccentCyan}{\\makebox[\\linewidth][c]{\\bfseries\\color{white}#1}}\\par\\vspace{6pt}\n");
@@ -115,7 +115,7 @@ public class AltaCVGenerator implements ResumeGenerator {
         
         b.append("\\begin{document}\n\n");
     }
-    // Top Full-Bleed Header
+    // Configure full-width header
     private void buildTopHeader(StringBuilder b, Resume resume) {
         String name = getHeaderVal(resume, "Name");
         String title = getHeaderVal(resume, "Title");
@@ -130,9 +130,9 @@ public class AltaCVGenerator implements ResumeGenerator {
         b.append("  {\\fontsize{40pt}{48pt}\\selectfont\\color{white}\\textbf{").append(name).append("}}\\\\[8pt]\n");
         b.append("  {\\Large\\color{white} ").append(title).append("}\n");
         b.append("\\end{center}\n");
-        b.append("\\vspace*{0.5in}\n\n"); // Push content below the drawn header
+        b.append("\\vspace*{0.5in}\n\n"); // Adjust spacing below header
     }
-    // Left Sidebar Column
+    // Generate left sidebar
     private void buildLeftColumn(StringBuilder b, Resume resume, List<Section> leftSections) {
         String image = getHeaderVal(resume, "IMAGE");
         
@@ -145,9 +145,9 @@ public class AltaCVGenerator implements ResumeGenerator {
             b.append("\\end{center}\n\\vspace{12pt}\n\n");
         }
 
-        b.append("\\centering\n"); // Center all text in sidebar
+        b.append("\\centering\n"); // Align sidebar text centrally
 
-        // Contact Info
+        // Output contact information
         String email = getHeaderVal(resume, "Email");
         String github = getHeaderVal(resume, "GitHub").replaceFirst("https?://", "");
         String location = getHeaderVal(resume, "Location");
@@ -186,7 +186,7 @@ public class AltaCVGenerator implements ResumeGenerator {
         }
     }
 
-    // Right Main Column
+    // Generate right main column
 
     private void buildRightColumn(StringBuilder b, List<Section> rightSections) {
         b.append("\\raggedright\n");
@@ -198,7 +198,7 @@ public class AltaCVGenerator implements ResumeGenerator {
                 String role = escapeLatex(sub.keyValues.getOrDefault("Role", sub.keyValues.getOrDefault("Degree", "")));
                 String time = escapeLatex(sub.keyValues.getOrDefault("Timeline", sub.keyValues.getOrDefault("ExpectedGraduation", "")));
                 String loc = escapeLatex(sub.keyValues.getOrDefault("Location", ""));
-                // Date in left margin, Title/Org in main body
+                // Format date and title
                 b.append("\\begin{tabularx}{\\linewidth}{@{}p{0.18\\linewidth} X@{}}\n");
                 b.append("  \\small\\color{TextLight}").append(time).append(" &\n");
                 b.append("  \\textbf{\\color{TextDark}").append(escapeLatex(sub.title)).append("}\n");
@@ -211,7 +211,7 @@ public class AltaCVGenerator implements ResumeGenerator {
                     b.append("}\n");
                 }
                 b.append("\\end{tabularx}\\par\\vspace{4pt}\n");
-                // Descriptions
+                // Output subsection descriptions
                 Set<String> ignore = Set.of("Role", "Timeline", "StartDate", "Location", "Degree", "ExpectedGraduation", "Graduation", "TechStack", "Highlights");
                 boolean hasDesc = false;
                 for (String key : sub.keyValues.keySet()) {

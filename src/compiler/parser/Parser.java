@@ -9,7 +9,7 @@ public class Parser {
     private int position = 0;
     private Token currentToken;
 
-    // AST state
+    // Abstract syntax tree components
     private Resume resume;
     private Section currentSection;
     private SubSection currentSubSection;
@@ -32,7 +32,7 @@ public class Parser {
         }
     }
 
-    // Parse Resume
+    // Parse root structure
     public Resume parseResume() {
         while (currentToken.getType() == Token.TokenType.NEWLINE) {
             eat(Token.TokenType.NEWLINE);
@@ -42,7 +42,7 @@ public class Parser {
             if (currentToken.getType() == Token.TokenType.KEYWORD_SECTION) {
                 parseSection();
             } else if (currentToken.getType() == Token.TokenType.IDENTIFIER) {
-                // Add top-level keys to header
+                // Store header metadata
                 String[] kv = parseKeyValue();
                 resume.headerInfo.put(kv[0], kv[1]);
             } else if (currentToken.getType() == Token.TokenType.NEWLINE) {
@@ -54,15 +54,15 @@ public class Parser {
         return resume;
     }
 
-    // Parse Section
+    // Parse section
     private void parseSection() {
         eat(Token.TokenType.KEYWORD_SECTION);
-        eat(Token.TokenType.ASSIGN_OP); // Enforce Section assignment
+        eat(Token.TokenType.ASSIGN_OP); // Verify section assignment
 
         String sectionName = currentToken.getValue();
         eat(Token.TokenType.STRING_VALUE);
 
-        // Create active Section
+        // Initialize section
         currentSection = new Section(sectionName);
         currentSubSection = null;
 
@@ -75,11 +75,11 @@ public class Parser {
             parseContent();
         }
 
-        // Attach Section
+        // Add section to resume
         resume.sections.add(currentSection);
     }
 
-    // Parse Content
+    // Parse content elements
     private void parseContent() {
         switch (currentToken.getType()) {
             case IDENTIFIER:
@@ -102,15 +102,15 @@ public class Parser {
         }
     }
 
-    // Parse Key-Value and bullets
+    // Parse key-value pairs and lists
     private String[] parseKeyValue() {
         String key = currentToken.getValue();
         eat(Token.TokenType.IDENTIFIER);
-        eat(Token.TokenType.ASSIGN_OP); // Mandatory assignment
+        eat(Token.TokenType.ASSIGN_OP); // Require assignment
 
         String value = "";
 
-        // Handle string value
+        // Process string value
         if (currentToken.getType() == Token.TokenType.STRING_VALUE) {
             value = currentToken.getValue();
             eat(Token.TokenType.STRING_VALUE);
@@ -119,15 +119,15 @@ public class Parser {
                 eat(Token.TokenType.NEWLINE);
             }
         }
-        // Handle bullet list or newline
+        // Process list or newline
         else if (currentToken.getType() == Token.TokenType.NEWLINE) {
             eat(Token.TokenType.NEWLINE);
 
-            // Parse bullets
+            // Parse list items
             while (currentToken.getType() == Token.TokenType.BULLET_ITEM) {
                 String bulletText = parseBullet();
                 if (currentSubSection != null) {
-                    // Prepend key to bullet
+                    // Add key to list item
                     currentSubSection.bullets.add(key + ": " + bulletText);
                 }
             }
@@ -136,7 +136,7 @@ public class Parser {
         return new String[] { key, value };
     }
 
-    // Parse Bullet
+    // Parse single bullet
     private String parseBullet() {
         String bullet = currentToken.getValue();
         eat(Token.TokenType.BULLET_ITEM);
@@ -148,15 +148,15 @@ public class Parser {
         return bullet;
     }
 
-    // Parse SubSection
+    // Parse subsection
     private void parseSubSection() {
         eat(Token.TokenType.KEYWORD_SUBSECTION);
-        eat(Token.TokenType.ASSIGN_OP); // Enforce SubSection assignment
+        eat(Token.TokenType.ASSIGN_OP); // Verify subsection assignment
 
         String name = currentToken.getValue();
         eat(Token.TokenType.STRING_VALUE);
 
-        // Create SubSection
+        // Initialize subsection
         currentSubSection = new SubSection(name);
 
         if (currentToken.getType() == Token.TokenType.NEWLINE) {
@@ -169,7 +169,7 @@ public class Parser {
             parseContent();
         }
 
-        // Attach SubSection
+        // Add subsection to section
         currentSection.subSections.add(currentSubSection);
     }
 

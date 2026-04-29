@@ -2,16 +2,16 @@ package compiler.lexer;
 
 public class Token {
 
-    // Token types for grammar
+    // Token types
     public enum TokenType {
-        KEYWORD_SECTION,     // Section
-        KEYWORD_SUBSECTION,  // SubSection
-        IDENTIFIER,          // Keys
-        ASSIGN_OP,           // = or :
-        STRING_VALUE,        // Text content
-        BULLET_ITEM,         // List item
-        NEWLINE,             // Newline \n
-        EOF                  // End of file
+        KEYWORD_SECTION,     // Section keyword
+        KEYWORD_SUBSECTION,  // Subsection keyword
+        IDENTIFIER,          // Identifier keys
+        ASSIGN_OP,           // Assignment operator
+        STRING_VALUE,        // String content
+        BULLET_ITEM,         // Bullet item
+        NEWLINE,             // Newline character
+        EOF                  // End of file marker
     }
 
     private final TokenType type;
@@ -42,7 +42,7 @@ public class Token {
         return column;
     }
 
-    // Formatting token output
+    // Format token string
     @Override
     public String toString() {
         if (type == TokenType.NEWLINE) {

@@ -19,10 +19,10 @@ public class Server {
     public static void main(String[] args) throws Exception {
         HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
 
-        // 1. Serve the frontend files
+        // Serve the frontend files
         server.createContext("/", new StaticFileHandler());
 
-        // 2. The Compiler API Endpoint
+        // Setup the compiler API endpoint
         server.createContext("/api/generate", new GenerateHandler());
 
         server.setExecutor(null); // Use default executor
@@ -37,10 +37,10 @@ public class Server {
     static class GenerateHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {
-            // 1. Global CORS Headers
+            // Configure CORS headers
             exchange.getResponseHeaders().add("Access-Control-Allow-Origin", "*");
             exchange.getResponseHeaders().add("Access-Control-Allow-Methods", "POST, OPTIONS");
-            // 🔥 Added X-Output-Format to allowed headers
+            // Allow X-Output-Format header
             exchange.getResponseHeaders().add("Access-Control-Allow-Headers",
                     "Content-Type, X-Template-Name, X-Output-Format");
 
@@ -67,7 +67,7 @@ public class Server {
                     String latexCode = TemplateFactory.getGenerator(templateName).generate(resume);
                     String pdfBase64 = null;
 
-                    // 🔥 NEW: Compile to PDF if requested
+                    // Generate PDF if requested
                     if ("pdf".equalsIgnoreCase(outputFormat)) {
                         pdfBase64 = compilePdf(latexCode);
                     }
@@ -118,7 +118,7 @@ public class Server {
             }
         }
 
-        // 🔥 NEW: The PDF Compilation Engine
+        // Engine to compile LaTeX to PDF
         private String compilePdf(String latex) throws Exception {
             File tempDir = Files.createTempDirectory("resumegenx_").toFile();
             File texFile = new File(tempDir, "resume.tex");
@@ -129,14 +129,14 @@ public class Server {
 
                 ProcessBuilder pb = new ProcessBuilder(
                         "pdflatex",
-                        "-interaction=nonstopmode", // Don't hang waiting for user input
-                        "-halt-on-error", // Stop immediately if LaTeX breaks
+                        "-interaction=nonstopmode", // Execute without waiting for user input
+                        "-halt-on-error", // Halt on compilation error
                         "resume.tex");
                 pb.directory(tempDir);
 
-                // 🔥 THE FIX: Prevent Java Deadlock by redirecting the logs
+                // Redirect logs to avoid deadlocks
                 pb.redirectErrorStream(true);
-                pb.inheritIO(); // Prints the LaTeX output directly to your Java terminal
+                pb.inheritIO(); // Output LaTeX logs to the console
 
                 Process process = pb.start();
                 int exitCode = process.waitFor();
@@ -150,7 +150,7 @@ public class Server {
                 return java.util.Base64.getEncoder().encodeToString(pdfBytes);
 
             } finally {
-                // Always clean up temp files to prevent disk leak
+                // Clean up temporary files
                 for (File f : tempDir.listFiles()) {
                     f.delete();
                 }
@@ -159,7 +159,7 @@ public class Server {
         }
     }
 
-    // Simple handler to serve index.html, templates.html, and style.css
+    // Handler for static assets
     static class StaticFileHandler implements HttpHandler {
         @Override
         public void handle(HttpExchange exchange) throws IOException {

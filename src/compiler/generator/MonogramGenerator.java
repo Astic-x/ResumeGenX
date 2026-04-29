@@ -80,7 +80,7 @@ public class MonogramGenerator implements ResumeGenerator {
         List<Section> rightSections = new ArrayList<>();
 
         for (Section s : resume.sections) {
-            // Summary, Education, Skills, Languages go to the left
+            // Assign sections to the left column
             if (sectionIs(s.title, "education", "skill", "language", "tech", "certification", "summary", "about")) {
                 leftSections.add(s);
             } else {
@@ -91,7 +91,7 @@ public class MonogramGenerator implements ResumeGenerator {
         buildPreamble(latex);
         buildHeader(latex, resume);
 
-        // Setup Paracol
+        // Configure paracol layout
         latex.append("\\columnratio{0.32}\n");
         latex.append("\\setlength{\\columnsep}{0.05\\textwidth}\n");
         latex.append("\\begin{paracol}{2}\n\n");
@@ -109,7 +109,7 @@ public class MonogramGenerator implements ResumeGenerator {
     }
 
     private void buildPreamble(StringBuilder b) {
-        // Golden Rule: Base font locked to 12pt
+        // Set base font to 12pt
         b.append("\\documentclass[letterpaper, 12pt]{article}\n\n");
 
         b.append("\\usepackage[top=0.6in, bottom=0.6in, left=0.6in, right=0.6in]{geometry}\n");
@@ -124,7 +124,7 @@ public class MonogramGenerator implements ResumeGenerator {
         b.append("\\usetikzlibrary{shapes.geometric}\n");
         b.append("\\usepackage[hidelinks]{hyperref}\n\n");
 
-        // The Academic Pro Signature Blue
+        // Define template colors
         b.append("\\definecolor{HexBlue}{HTML}{2B5B84}\n");
         b.append("\\definecolor{TextMain}{HTML}{000000}\n");
         b.append("\\definecolor{TextLight}{HTML}{444444}\n\n");
@@ -140,7 +140,7 @@ public class MonogramGenerator implements ResumeGenerator {
         b.append("  parsep=0pt\n");
         b.append("}\n\n");
 
-        // Golden Rule: Headers locked to 14pt, colored HexBlue
+        // Style headers with 14pt and color
         b.append("\\newcommand{\\cvsection}[1]{%\n");
         b.append("  \\vspace*{10pt}\n");
         b.append("  \\noindent{\\fontsize{14pt}{16pt}\\selectfont\\bfseries\\color{HexBlue}\\uppercase{#1}}\\par\n");
@@ -154,7 +154,7 @@ public class MonogramGenerator implements ResumeGenerator {
         Set<String> consumedHeaderKeys = new HashSet<>();
         String name = consumeKey(resume.headerInfo, consumedHeaderKeys, "name");
         String title = consumeKey(resume.headerInfo, consumedHeaderKeys, "title", "role", "profession");
-        consumeKey(resume.headerInfo, consumedHeaderKeys, "image", "photo", "avatar"); // hide image key
+        consumeKey(resume.headerInfo, consumedHeaderKeys, "image", "photo", "avatar"); // Hide image field
 
         String initials = getInitials(name);
 
@@ -193,7 +193,7 @@ public class MonogramGenerator implements ResumeGenerator {
         b.append("\\color{TextMain}\n");
         b.append("\\setlength{\\baselineskip}{1.3\\baselineskip}\n\n");
 
-        // We pull "About" / "Summary" directly from Header if it exists
+        // Include summary from the header
         Set<String> dummy = new HashSet<>();
         String about = consumeKey(resume.headerInfo, dummy, "about", "summary", "objective", "profile");
         if (!about.isEmpty()) {
@@ -202,7 +202,7 @@ public class MonogramGenerator implements ResumeGenerator {
         }
 
         for (Section section : leftSections) {
-            // Skip explicit summary section if we already printed it from header
+            // Skip duplicate summary section
             if (sectionIs(section.title, "summary", "about"))
                 continue;
 
@@ -213,10 +213,10 @@ public class MonogramGenerator implements ResumeGenerator {
 
             boolean isFirstSub = true;
             for (SubSection sub : section.subSections) {
-                // Golden Rule: Unbreakable Box
+                // Prevent page breaks
                 b.append("\\begin{minipage}{\\linewidth}\n");
 
-                // Golden Rule: Header inside the box
+                // Add header to section
                 if (isFirstSub) {
                     b.append("\\cvsection{").append(escapeLatex(section.title)).append("}\n");
                     isFirstSub = false;
@@ -236,7 +236,7 @@ public class MonogramGenerator implements ResumeGenerator {
                     b.append("{\\color{TextLight}").append(time).append("}\\par\n");
                 }
 
-                // Print leftover keys generically
+                // Output remaining keys
                 for (String key : sub.keyValues.keySet()) {
                     if (!consumedSubKeys.contains(key)) {
                         b.append("{\\textbf{").append(escapeLatex(key)).append("}: ")
@@ -272,7 +272,7 @@ public class MonogramGenerator implements ResumeGenerator {
 
             boolean isFirstSub = true;
             for (SubSection sub : section.subSections) {
-                // Golden Rule: Unbreakable Box
+                // Prevent page breaks
                 b.append("\\begin{minipage}{\\linewidth}\n");
 
                 if (isFirstSub) {
