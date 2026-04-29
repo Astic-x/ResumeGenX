@@ -189,7 +189,7 @@ public class MonogramGenerator implements ResumeGenerator {
     }
 
     private void buildLeftColumn(StringBuilder b, Resume resume, List<Section> leftSections) {
-        b.append("\\raggedright\n"); // Fixes the bleed!
+        b.append("\\raggedright\n"); 
         b.append("\\color{TextMain}\n");
         b.append("\\setlength{\\baselineskip}{1.3\\baselineskip}\n\n");
 
