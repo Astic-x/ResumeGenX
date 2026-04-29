@@ -71,7 +71,7 @@ public class CenteredElegantGenerator implements ResumeGenerator {
     }
 
     private void buildPreamble(StringBuilder b) {
-        // Golden Rule: Base font locked strictly to 12pt
+        // Set base font to 12pt
         b.append("\\documentclass[letterpaper, 12pt]{article}\n\n");
 
         b.append("\\usepackage[top=0.7in, bottom=0.7in, left=0.7in, right=0.7in]{geometry}\n");
@@ -92,7 +92,7 @@ public class CenteredElegantGenerator implements ResumeGenerator {
         b.append("  parsep=0pt\n");
         b.append("}\n\n");
 
-        // Golden Rule: Section headers locked strictly to 14pt
+        // Set section headers to 14pt
         b.append("\\newcommand{\\cvsection}[1]{%\n");
         b.append("  \\vspace*{12pt}\n");
         b.append("  \\begin{center}\n");
@@ -112,10 +112,10 @@ public class CenteredElegantGenerator implements ResumeGenerator {
         consumeKey(resume.headerInfo, consumedHeaderKeys, "image", "photo", "avatar");
 
         b.append("\\begin{center}\n");
-        // Name allowed to be large hero size
+        // Use large font for name
         b.append("  {\\fontsize{28pt}{32pt}\\selectfont\\scshape ").append(name).append("}\\\\[6pt]\n");
         if (!title.isEmpty()) {
-            // 🔥 FIX: Replaced \large with strict 14pt boundary
+            // Restrict title to 14pt
             b.append("  {\\fontsize{14pt}{16pt}\\selectfont\\textit{").append(title).append("}}\\\\[6pt]\n");
         }
 
@@ -151,7 +151,7 @@ public class CenteredElegantGenerator implements ResumeGenerator {
             boolean isFirstSub = true;
 
             for (SubSection sub : section.subSections) {
-                // Golden Rule: Unbreakable Box
+                // Prevent page breaks
                 b.append("\\begin{minipage}{\\linewidth}\n");
 
                 if (isFirstSub) {

@@ -43,7 +43,7 @@ public class CreativeBoldGenerator implements ResumeGenerator {
         return bullet;
     }
 
-    // Golden Rule: Dynamic Parsing
+    // Dynamic key parsing
     private String consumeKey(Map<String, String> map, Set<String> consumed, String... keywords) {
         for (String k : map.keySet()) {
             if (!consumed.contains(k)) {
@@ -67,7 +67,7 @@ public class CreativeBoldGenerator implements ResumeGenerator {
         List<Section> rightSections = new ArrayList<>();
 
         for (Section s : resume.sections) {
-            // Sidebar sections: Skills, Languages, Tech, Tools
+            // Group sidebar sections
             if (sectionIs(s.title, "skill", "language", "tech", "tool", "arsenal")) {
                 leftSections.add(s);
             } else {
@@ -77,7 +77,7 @@ public class CreativeBoldGenerator implements ResumeGenerator {
 
         buildPreamble(latex);
 
-        // Setup Paracol for split layout
+        // Configure split layout
         latex.append("\\columnratio{0.32}\n");
         latex.append("\\setlength{\\columnsep}{0.05\\textwidth}\n");
         latex.append("\\begin{paracol}{2}\n\n");
@@ -95,7 +95,7 @@ public class CreativeBoldGenerator implements ResumeGenerator {
     }
 
     private void buildPreamble(StringBuilder b) {
-        // Golden Rule: Base font locked strictly to 12pt
+        // Set base font to 12pt
         b.append("\\documentclass[letterpaper, 12pt]{article}\n\n");
 
         b.append("\\usepackage[top=0.6in, bottom=0.6in, left=0.4in, right=0.6in]{geometry}\n");
@@ -126,14 +126,14 @@ public class CreativeBoldGenerator implements ResumeGenerator {
         b.append("  parsep=0pt\n");
         b.append("}\n\n");
 
-        // Section Headers: 14pt, Uppercase, with a tight rule
+        // Style section headers
         b.append("\\newcommand{\\cvsection}[1]{%\n");
         b.append("  \\vspace*{10pt}\n");
         b.append("  \\noindent{\\fontsize{14pt}{16pt}\\selectfont\\bfseries\\uppercase{#1}}\\par\n");
         b.append("  \\vspace{2pt}\\hrulefill\\par\\vspace{8pt}\n");
         b.append("}\n\n");
 
-        // Sidebar background painter
+        // Set sidebar background
         b.append("\\AddToShipoutPictureBG{%\n");
         b.append("  \\begin{tikzpicture}[remember picture,overlay]\n");
         b.append(
@@ -168,10 +168,10 @@ public class CreativeBoldGenerator implements ResumeGenerator {
         for (Section section : leftSections) {
             boolean isFirstSub = true;
             for (SubSection sub : section.subSections) {
-                // Golden Rule: Unbreakable Box
+                // Prevent page breaks
                 b.append("\\begin{minipage}{\\linewidth}\n");
 
-                // Header inside the box
+                // Add header to section
                 if (isFirstSub) {
                     b.append("\\vspace*{10pt}\n");
                     b.append("{\\fontsize{14pt}{16pt}\\selectfont\\bfseries ")
@@ -210,10 +210,10 @@ public class CreativeBoldGenerator implements ResumeGenerator {
         String title = consumeKey(resume.headerInfo, consumedHeaderKeys, "title", "role", "profession");
         String about = consumeKey(resume.headerInfo, consumedHeaderKeys, "about", "summary", "objective", "profile");
 
-        // Bold Name: allowed large hero size
+        // Use large font for name
         b.append("{\\fontsize{32pt}{36pt}\\selectfont\\bfseries ").append(name).append("}\\par\\vspace{4pt}\n");
         if (!title.isEmpty()) {
-            // Title strictly 14pt
+            // Ensure title is 14pt
             b.append("{\\fontsize{14pt}{16pt}\\selectfont\\color{TextLight} ").append(title)
                     .append("}\\par\\vspace{16pt}\n");
         }
@@ -229,10 +229,10 @@ public class CreativeBoldGenerator implements ResumeGenerator {
         for (Section section : rightSections) {
             boolean isFirstSub = true;
             for (SubSection sub : section.subSections) {
-                // Golden Rule: Unbreakable Box
+                // Prevent page breaks
                 b.append("\\begin{minipage}{\\linewidth}\n");
 
-                // Header inside the box
+                // Add header to section
                 if (isFirstSub) {
                     b.append("\\cvsection{").append(escapeLatex(section.title)).append("}\n");
                     isFirstSub = false;
@@ -243,7 +243,7 @@ public class CreativeBoldGenerator implements ResumeGenerator {
                 String time = consumeKey(sub.keyValues, consumedSubKeys, "time", "date", "year", "grad");
                 String loc = consumeKey(sub.keyValues, consumedSubKeys, "loc", "city", "state");
 
-                // Content defaults to document's 12pt base
+                // Use default 12pt font for content
                 b.append("{\\textbf{").append(escapeLatex(sub.title)).append("}} \\hfill {\\textbf{").append(time)
                         .append("}}\\par\\vspace{2pt}\n");
 

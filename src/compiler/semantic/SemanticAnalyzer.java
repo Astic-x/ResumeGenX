@@ -8,8 +8,7 @@ public class SemanticAnalyzer {
     private List<String> errors = new ArrayList<>();
     private List<String> warnings = new ArrayList<>();
 
-    // 🔥 FIX 1: Changed return type from void to List<String> so Server.java can
-    // grab them
+    // Return warnings to the caller
     public List<String> analyze(Resume resume) {
         checkHeader(resume);
         checkSections(resume);
@@ -114,8 +113,7 @@ public class SemanticAnalyzer {
                 continue;
             }
 
-            // 🔥 FIX 2: Removed the strict "allowedKeys" check here.
-            // Our templates now dynamically handle ANY custom key!
+            // Allow any custom key for dynamic templates
 
             if (value.isEmpty()) {
                 warnings.add("Empty value for key '" + key + "' in SubSection '" + sub.title + "'.");

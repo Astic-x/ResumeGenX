@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("  ResumeGenX - Combined Compiler Test  ");
         try {
-            // 1. READ INPUT
+            // Read input file
             String fileName = args.length > 0 ? args[0] : "Sample.rdl";
 
             System.out.println("1. Reading input file '" + fileName + "'...");
@@ -22,30 +22,30 @@ public class Main {
             System.out.println("      File read successfully. Length: "
                     + fileContent.length() + " characters.\n");
 
-            // 2. LEXER
+            // Tokenize input
             System.out.println("2. Running Lexer...");
             Lexer lexer = new Lexer(fileContent);
             List<Token> tokens = lexer.tokenize();
             System.out.println("      Lexer finished successfully. Generated "
                     + tokens.size() + " tokens.\n");
 
-            // 3. PARSER
+            // Parse tokens into AST
             System.out.println("3. Running Parser...");
             Parser parser = new Parser(tokens);
             Resume myResume = parser.parseResume();
             System.out.println("      Parser finished successfully.\n");
 
-            // DEBUG
+            // Debug information
             System.out.println("DEBUG: AST successfully created\n");
 
-            // 4. SEMANTIC ANALYSIS
+            // Run semantic analysis
             System.out.println("4. Running Semantic Analyzer...");
             SemanticAnalyzer analyzer = new SemanticAnalyzer();
 
             analyzer.analyze(myResume);
             System.out.println("      Semantic analysis completed.\n");
 
-            // 5. PRINT AST
+            // Print the generated AST
             System.out.println("  Abstract Syntax Tree (AST) Summary ");
             System.out.println("Header Info:");
             for (String key : myResume.headerInfo.keySet()) {
@@ -60,27 +60,27 @@ public class Main {
 
             System.out.println("\n  Test Completed Without Errors  ");
             System.out.println("  Execution Completed ");
-            // 6. LATEX GENERATION
+            // Generate LaTeX document
             System.out.println("5. Generating LaTeX...");
 
             String latexCode = LatexGenerator.generate(myResume);
 
-            // Print preview
+            // Output generated LaTeX
             System.out.println("\nGENERATED LATEX \n");
             // System.out.println(latexCode);
 
-            // Save to file
+            // Save LaTeX output to file
             
-            // Define the workspace directory
+            // Specify workspace directory
             Path workspaceDir = Path.of("workspace");
 
-            // Safely create the directory if it doesn't exist yet
+            // Create workspace if needed
             if (!Files.exists(workspaceDir)) {
                 Files.createDirectories(workspaceDir);
                 System.out.println("      Created new 'workspace' directory.");
             }
 
-            // Resolve the output path inside the workspace folder
+            // Determine final output path
             Path outputPath = workspaceDir.resolve("output.tex");
             Files.writeString(outputPath, latexCode);
 

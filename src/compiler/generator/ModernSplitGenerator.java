@@ -92,7 +92,7 @@ public class ModernSplitGenerator implements ResumeGenerator {
     }
 
     private void buildPreamble(StringBuilder b) {
-        // Base document is locked to 12pt
+        // Set base font to 12pt
         b.append("\\documentclass[letterpaper, 12pt]{article}\n\n");
 
         b.append("\\usepackage[top=0.6in, bottom=0.6in, left=0.5in, right=0.6in]{geometry}\n");
@@ -124,7 +124,7 @@ public class ModernSplitGenerator implements ResumeGenerator {
         b.append("  parsep=0pt\n");
         b.append("}\n\n");
 
-        // Section headers locked to 14pt
+        // Set section headers to 14pt
         b.append("\\newcommand{\\cvsection}[1]{%\n");
         b.append("  \\vspace*{10pt}\n");
         b.append("  \\noindent{\\fontsize{14pt}{16pt}\\selectfont\\bfseries\\uppercase{#1}}\\par\n");
@@ -140,7 +140,7 @@ public class ModernSplitGenerator implements ResumeGenerator {
 
         b.append("\\begin{document}\n\n");
 
-        // Restored the massive 80pt graphic quote
+        // Include graphic quote element
         b.append("\\begin{tikzpicture}[remember picture,overlay]\n");
         b.append(
                 "  \\node[text=QuoteYellow, font=\\fontsize{80}{80}\\selectfont\\bfseries, anchor=north east] at ([xshift=-0.4in, yshift=-0.3in]current page.north east) {''};\n");
@@ -225,8 +225,7 @@ public class ModernSplitGenerator implements ResumeGenerator {
         String title = consumeKey(resume.headerInfo, consumedHeaderKeys, "title", "role", "profession");
         String about = consumeKey(resume.headerInfo, consumedHeaderKeys, "about", "summary", "objective", "profile");
 
-        // Restored massive name size (32pt) with a proper 36pt line-height so it wraps
-        // cleanly
+        // Set name to 32pt with proper wrapping
         b.append("{\\fontsize{32pt}{36pt}\\selectfont\\bfseries\\uppercase{").append(name)
                 .append("}}\\par\\vspace{4pt}\n");
         if (!title.isEmpty()) {
@@ -264,7 +263,7 @@ public class ModernSplitGenerator implements ResumeGenerator {
                 String time = consumeKey(sub.keyValues, consumedSubKeys, "time", "date", "year", "grad");
                 String loc = consumeKey(sub.keyValues, consumedSubKeys, "loc", "city", "state");
 
-                // Content defaults to the document's 12pt base
+                // Use default 12pt font for content
                 b.append("{\\textbf{").append(escapeLatex(sub.title)).append("}} \\hfill {\\textbf{").append(time)
                         .append("}}\\par\\vspace{2pt}\n");
 

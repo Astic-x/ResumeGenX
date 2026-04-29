@@ -1,54 +1,54 @@
 // 1. Forgiving Assignments: Notice how = and : are mixed freely
-Name = Ankush Malik
-Email : ankush.malik@example.com
-Location = Dehradun, Uttarakhand
-GitHub : github.com/ankushmalik
+Name = Jordan Overachiever
+Email : jordan.o@example.com
+Location = San Francisco, CA
+GitHub : github.com/jordan_o
 
 // 2. Structural Hierarchy: Sections containing SubSections
 Section: Education
-    SubSection = Graphic Era (Deemed to be) University
-        Degree : B.Tech Computer Science and Engineering
-        ExpectedGraduation = 2027
-        Coursework = Compiler Design, Database Management Systems, Computer Networks, Machine Learning
+    SubSection = Tech Institute of California
+        Degree : B.S. Software Engineering
+        ExpectedGraduation = 2025
+        Coursework = Distributed Systems, Cloud Computing, Advanced Algorithms
     
-    SubSection = Army Public School, Birpur
-        Degree = Higher Secondary Education
-        Graduation : 2022
+    SubSection = Horizon High School
+        Degree = High School Diploma
+        Graduation : 2021
 
 Section: Experience
-    SubSection: Microsoft
-        Role = Software Engineer Intern
-        StartDate : May 18, 2026
+    SubSection: MegaCorp
+        Role = Backend Engineering Intern
+        StartDate : June 1, 2024
         // 3. Multi-line String: The indentation on the second line tells the 
         // Lexer to stitch this together into one continuous sentence.
-        Description = Incoming intern focused on core software engineering, 
-            cloud computing, and enterprise-level system architecture.
+        Description = Engineered a scalable microservice architecture using Spring Boot and Docker.
+            Collaborated closely with cross-functional teams to deploy features handling millions of daily requests.
 
 Section: Projects
-    SubSection: CourtCommand
-        Role : Backend Developer
-        TechStack = Node.js, Express.js, MySQL, EJS
+    SubSection: DataStreamer
+        Role : Full Stack Developer
+        TechStack = React, Node.js, PostgreSQL, Redis
         // 4. Natural Typing: The Lexer ignores the commas in the text below
         // and safely reads the multi-line indented paragraph.
-        Description = Collaborated with Vishal, Sidharth, and Akshat to build an AI-powered basketball game analysis system.
-            The backend handles complex real-time data flow, user authentication, and video processing metrics seamlessly.
+        Description = Designed a real-time data streaming dashboard for monitoring financial metrics.
+            The system aggregates thousands of data points per second and updates the UI instantly using WebSockets.
         // 5. Bullet Points: The hyphen triggers the LIST token
         Highlights:
-            - Designed robust MySQL schemas for game statistics.
-            - Built secure RESTful APIs using Node and Express.
+            - Reduced data latency by 60% through optimized caching strategies.
+            - Implemented a secure user authentication system with role-based access control.
 
-    SubSection = ArmouryNet
+    SubSection = ResumeGenX Compiler
         Role = Systems Engineer
-        Timeline : Sept 2025 - Nov 2025
+        Timeline : Jan 2024 - April 2024
         // 6. Extreme Punctuation: The compiler will safely absorb the semicolon
         // and the internal colon without thinking they are new keys.
-        Description: Engineered a comprehensive battalion logistics system; utilized advanced concurrency models: improved data retrieval significantly.
+        Description: Developed a custom Domain-Specific Language (DSL) for resume generation; utilized recursive descent parsing: improved compilation speeds dramatically.
         Highlights = 
-            - Optimized database queries to handle heavy load.
-            - Streamlined military equipment tracking and duty management.
+            - Built a custom Lexer and Parser in Java from scratch.
+            - Designed a robust Abstract Syntax Tree (AST) to validate structural integrity.
 
-    SubSection: BaseOps
-        Role : Lead Developer
-        Timeline = Feb 2025 - May 2025
+    SubSection: CloudDeploy
+        Role : DevOps Engineer
+        Timeline = Sept 2023 - Dec 2023
         Highlights:
-            - Developed a highly efficient military duty management system.
+            - Automated the deployment pipeline using Jenkins and Kubernetes.
